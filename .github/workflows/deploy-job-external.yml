@@ -1,0 +1,32 @@
+# Common JOB called from an external workflow other than msa-rms-parent
+name: deploy-job-external
+
+on:
+  workflow_call:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        server-id: github
+        server-username: REPOSITORY_SERVER_USER
+        server-password: REPOSITORY_SERVER_PASSWORD
+        settings-path: ${{ github.workspace }}
+
+    - name: TEST
+      run: cat $GITHUB_WORKSPACE/settings.xml
+
+    - name: Publish to GitHub Packages Apache Maven
+      run: mvn -B -Pcli deploy --file pom.xml -s $GITHUB_WORKSPACE/settings.xml
+      env:
+        REPOSITORY_SERVER_USER: ${{ secrets.REPOSITORY_SERVER_USER }}
+        REPOSITORY_SERVER_PASSWORD: ${{ secrets.REPOSITORY_SERVER_PASSWORD }}

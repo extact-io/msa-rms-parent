@@ -1,0 +1,47 @@
+# Common JOB called from msa-rms-parent own workflow
+name: deploy-job-self
+
+on:
+  workflow_call:
+    inputs:
+      repo:
+        required: true
+        type: string
+      with_image:
+        type: boolean
+        default: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.repo }}
+    - name: Set up JDK 17 for GitHub
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        server-id: github
+        settings-path: ${{ github.workspace }}
+    - if: inputs.with_image
+      name: Publish jar and image to GitHub Packages
+      run: |
+        mvn -B -Pcli,copy-libs \
+          deploy \
+          docker:build \
+          docker:push \
+          -Dimage.tag=`date +%Y%m%dT%H%M%S-%3N` \
+          -DskipTests \
+          -s $GITHUB_WORKSPACE/settings.xml 
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+    - if: ${{ !inputs.with_image }}
+      name: Publish jar to GitHub Packages
+      run: mvn -B -Pcli deploy -DskipTests -s $GITHUB_WORKSPACE/settings.xml
+      env:
+        GITHUB_TOKEN: ${{ github.token }}

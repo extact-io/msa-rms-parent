@@ -1,0 +1,45 @@
+# Workflow - mvn verify for All
+name: verify-all-workflow
+
+on:
+  workflow_dispatch:
+    branches: [ main ]
+  workflow_call:
+
+jobs:
+  parent:
+    uses: ./.github/workflows/verify-parent-job.yml
+
+  platform:
+    needs: parent
+    uses: ./.github/workflows/verify-platform-job.yml
+
+  apigateway:
+    needs: platform
+    uses: ./.github/workflows/verify-app-job.yml
+    with:
+      repo: extact-io/msa-rms-apigateway
+
+  service-item:
+    needs: platform
+    uses: ./.github/workflows/verify-app-job.yml
+    with:
+      repo: extact-io/msa-rms-service-item
+
+  service-reservation:
+    needs: platform
+    uses: ./.github/workflows/verify-app-job.yml
+    with:
+      repo: extact-io/msa-rms-service-reservation
+
+  service-user:
+    needs: platform
+    uses: ./.github/workflows/verify-app-job.yml
+    with:
+      repo: extact-io/msa-rms-service-user
+
+  ui-console:
+    needs: platform
+    uses: ./.github/workflows/verify-app-job.yml
+    with:
+      repo: extact-io/msa-rms-ui-console

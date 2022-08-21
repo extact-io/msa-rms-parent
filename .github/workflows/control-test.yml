@@ -1,0 +1,30 @@
+name: control-test
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip-step1:
+        description: skip step1?
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  step1:
+    if: ${{ !inputs.skip-step1 }}
+    runs-on: ubuntu-latest
+    steps:
+    - run: echo "exec step1"
+
+  step2:
+    if: ${{ !failure() }}
+    needs: step1
+    runs-on: ubuntu-latest
+    steps:
+    - run: echo "exec step2"
+
+  step3:
+    needs: step2
+    runs-on: ubuntu-latest
+    steps:
+    - run: echo "exec step3"

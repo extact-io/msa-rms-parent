@@ -1,0 +1,35 @@
+name: verify-platform-job
+
+on:
+  workflow_call:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    # install msa-rms-parent for execution prepare
+    - name: prepare execution - checkout msa-rms-parent
+      uses: actions/checkout@v3
+      with:
+        repository: extact-io/msa-rms-parent
+        path: msa-rms-parent
+    - name: prepare execution - install msa-rms-parent
+      run: mvn -B -Pcli install -DskipTests=true
+      working-directory: msa-rms-parent
+    # execute verify to platform modules
+    - name: checkout platform
+      uses: actions/checkout@v3
+      with:
+        repository: extact-io/msa-rms-platform
+        path: msa-rms-platform
+    - name: execute verify
+      run: mvn -B -Pcli verify
+      working-directory: msa-rms-platform

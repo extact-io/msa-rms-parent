@@ -1,0 +1,13 @@
+# Workflow - Publish to GitHub Packages
+name: deploy-workflow
+
+on:
+  workflow_dispatch:
+    branches: [ main ]
+
+jobs:
+  execute:
+    uses: ./.github/workflows/deploy-job-self.yml
+    with:
+      repo: ${{ github.repository }}
+    secrets: inherit

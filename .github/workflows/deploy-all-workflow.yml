@@ -1,0 +1,64 @@
+# Workflow - Publish to GitHub Packages for All
+name: deploy-all-workflow
+
+on:
+  workflow_dispatch:
+    branches: [ main ]
+    inputs:
+      skip-verify:
+        description: skip verify?
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  verify-all:
+    if: ${{ !inputs.skip-verify }}
+    uses: ./.github/workflows/verify-all-workflow.yml
+
+  parent:
+    if: always()
+    needs: verify-all
+    uses: ./.github/workflows/deploy-job-self.yml
+    with:
+      repo: extact-io/msa-rms-parent
+
+  platform:
+    needs: parent
+    uses: ./.github/workflows/deploy-job-self.yml
+    with:
+      repo: extact-io/msa-rms-platform
+
+  apigateway:
+    needs: platform
+    uses: ./.github/workflows/deploy-job-self.yml
+    with:
+      repo: extact-io/msa-rms-apigateway
+      with_image: true
+
+  service-item:
+    needs: platform
+    uses: ./.github/workflows/deploy-job-self.yml
+    with:
+      repo: extact-io/msa-rms-service-item
+      with_image: true
+
+  service-reservation:
+    needs: platform
+    uses: ./.github/workflows/deploy-job-self.yml
+    with:
+      repo: extact-io/msa-rms-service-reservation
+      with_image: true
+
+  service-user:
+    needs: platform
+    uses: ./.github/workflows/deploy-job-self.yml
+    with:
+      repo: extact-io/msa-rms-service-user
+      with_image: true
+
+  ui-console:
+    needs: platform
+    uses: ./.github/workflows/deploy-job-self.yml
+    with:
+      repo: extact-io/msa-rms-ui-console
