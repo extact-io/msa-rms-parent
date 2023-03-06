@@ -11,10 +11,12 @@ on:
 
 jobs:
   step1:
+    env:
+      IMAGE_TAG: ${{ github.sha }}
     if: ${{ !inputs.skip-step1 }}
     runs-on: ubuntu-latest
     steps:
-    - run: echo "exec step1"
+    - run: echo @$IMAGE_TAG@
 
   step2:
     if: ${{ !failure() }}
