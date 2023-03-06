@@ -1,0 +1,21 @@
+# Workflow - Publish to GitHub Packages for All
+name: deploy-all-workflow
+
+on:
+  workflow_dispatch:
+    branches: [ main ]
+    inputs:
+      skip-verify:
+        description: skip verify?
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  verify-all:
+    if: ${{ !inputs.skip-verify }}
+    uses: ./.github/workflows/verify-all-workflow.yml
+
+  deploy-all:
+    if: ${{ !failure() }}
+    uses: ./.github/workflows/deploy-all-workflow.yml
