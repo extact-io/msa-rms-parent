@@ -1,5 +1,5 @@
 # Workflow - Publish to GitHub Packages for All
-name: deploy-all-workflow
+name: verify-to-deploy-all-workflow
 
 on:
   workflow_dispatch:
