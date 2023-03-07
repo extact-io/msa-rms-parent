@@ -15,45 +15,45 @@ jobs:
   platform:
     needs: parent
     uses: ./.github/workflows/deploy-job.yml
-    secrets: inherit
     with:
       repo: extact-io/msa-rms-platform
+    secrets: inherit
 
   apigateway:
     needs: platform
     uses: ./.github/workflows/deploy-job.yml
-    secrets: inherit
     with:
       repo: extact-io/msa-rms-apigateway
       with_image: true
+    secrets: inherit
 
   service-item:
     needs: platform
     uses: ./.github/workflows/deploy-job.yml
-    secrets: inherit
     with:
       repo: extact-io/msa-rms-service-item
       with_image: true
+    secrets: inherit
 
   service-reservation:
     needs: platform
     uses: ./.github/workflows/deploy-job.yml
-    secrets: inherit
     with:
       repo: extact-io/msa-rms-service-reservation
       with_image: true
+    secrets: inherit
 
   service-user:
     needs: platform
     uses: ./.github/workflows/deploy-job.yml
-    secrets: inherit
     with:
       repo: extact-io/msa-rms-service-user
       with_image: true
+    secrets: inherit
 
   ui-console:
     needs: platform
     uses: ./.github/workflows/deploy-job.yml
-    secrets: inherit
     with:
       repo: extact-io/msa-rms-ui-console
+    secrets: inherit
