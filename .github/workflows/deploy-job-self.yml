@@ -11,18 +11,21 @@ on:
         type: boolean
         default: false
 
+defaults:
+  run:
+    working-directory: build
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-    env:
-      IMAGE_TAG: ${{ github.token }}
     steps:
     - uses: actions/checkout@v3
       with:
         repository: ${{ inputs.repo }}
+        path: build
     - name: Set up JDK 17 for GitHub
       uses: actions/setup-java@v3
       with:
@@ -30,6 +33,9 @@ jobs:
         distribution: 'temurin'
         server-id: github
         settings-path: ${{ github.workspace }}
+    - if: inputs.with_image
+      name: prepare IMAGE_TAG
+      run: echo "IMAGE_TAG=`git show --format='%H' --no-patch`" >> $GITHUB_ENV
     - if: inputs.with_image
       name: Publish jar to GitHub Packages and Build Image
       run: |
@@ -41,6 +47,14 @@ jobs:
           -s $GITHUB_WORKSPACE/settings.xml 
       env:
         GITHUB_TOKEN: ${{ github.token }}
+    - if: inputs.with_image
+      name: Set up JDK 17 for GitHub
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        server-id: ghcr.io
+        settings-path: ${{ github.workspace }}
     - if: inputs.with_image
       name: Push Image to GitHub Packages
       run: |
