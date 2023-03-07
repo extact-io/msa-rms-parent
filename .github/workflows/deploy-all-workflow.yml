@@ -4,6 +4,7 @@ name: deploy-all-workflow
 on:
   workflow_dispatch:
     branches: [ main ]
+  workflow_call:
 
 jobs:
   parent:
