@@ -11,6 +11,7 @@ jobs:
     uses: ./.github/workflows/deploy-job.yml
     with:
       repo: extact-io/msa-rms-parent
+    secrets: inherit
 
   platform:
     needs: parent
