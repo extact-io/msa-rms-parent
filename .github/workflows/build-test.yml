@@ -15,13 +15,15 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
     # install msa-rms-parent for execution prepare
+    - name: prepare IMAGE_TAG
+      run: echo "IMAGE_TAG=`git show --format='%H' --no-patch`"
     - name: prepare execution - checkout msa-rms-parent
       uses: actions/checkout@v3
       with:
         repository: extact-io/msa-rms-parent
         path: msa-rms-parent
     - name: prepare execution - install msa-rms-parent
-      run: git show --format='%H' --no-patch
+      run: echo ${{ env.IMAGE_TAG }}
       working-directory: msa-rms-parent
     # install msa-rms-platform for execution prepare
     - name: prepare execution - checkout msa-rms-platform
@@ -30,7 +32,7 @@ jobs:
         repository: extact-io/msa-rms-platform
         path: msa-rms-platform
     - name: prepare execution - install msa-rms-platform
-      run: git show --format='%H' --no-patch
+      run: echo $IMAGE_TAG
       working-directory: msa-rms-platform
     # execute verify to target app
     - name: checkout target app
@@ -39,5 +41,5 @@ jobs:
         repository: extact-io/msa-rms-apigateway
         path: target-app
     - name: execute verify
-      run: git show --format='%H' --no-patch
+      run: echo ${{ env.IMAGE_TAG }}
       working-directory: target-app
