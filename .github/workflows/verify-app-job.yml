@@ -19,6 +19,7 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+
     # install msa-rms-parent for execution prepare
     - name: prepare execution - checkout msa-rms-parent
       uses: actions/checkout@v3
@@ -28,6 +29,7 @@ jobs:
     - name: prepare execution - install msa-rms-parent
       run: mvn -B -Pcli install -DskipTests=true
       working-directory: msa-rms-parent
+    
     # install msa-rms-platform for execution prepare
     - name: prepare execution - checkout msa-rms-platform
       uses: actions/checkout@v3
@@ -37,6 +39,7 @@ jobs:
     - name: prepare execution - install msa-rms-platform
       run: mvn -B -Pcli install -DskipTests=true
       working-directory: msa-rms-platform
+    
     # execute verify to target app
     - name: checkout target app
       uses: actions/checkout@v3

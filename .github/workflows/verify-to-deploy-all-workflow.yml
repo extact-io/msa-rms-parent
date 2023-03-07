@@ -1,4 +1,4 @@
-# Workflow - Verify and Publish to GitHub Packages for All
+# Workflow - Verify and Deploy to GitHub Packages for All
 name: verify-to-deploy-all-workflow
 
 on:
