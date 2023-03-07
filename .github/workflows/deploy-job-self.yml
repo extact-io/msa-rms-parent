@@ -58,11 +58,11 @@ jobs:
         server-password: REPOSITORY_SERVER_PASSWORD
         settings-path: ${{ github.workspace }}
     - if: inputs.with_image
+      run: cat $GITHUB_WORKSPACE/settings.xml
+    - if: inputs.with_image
       name: Push Image to GitHub Packages
       run: |
-        mvn -B docker:push \
-          -Dimage.tag=$IMAGE_TAG \
-          -s $GITHUB_WORKSPACE/settings.xml
+        mvn -B -X docker:push -Dimage.tag=$IMAGE_TAG -s $GITHUB_WORKSPACE/settings.xml
       env:
         REPOSITORY_SERVER_USER: ${{ secrets.REPOSITORY_SERVER_USER }}
         REPOSITORY_SERVER_PASSWORD: ${{ secrets.REPOSITORY_SERVER_PASSWORD }}
