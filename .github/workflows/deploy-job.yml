@@ -1,0 +1,70 @@
+# Reusable Workflow for build, publish jar and image to GitHub Packages
+# --------------------------------------------------
+# msa-rms以外のリポジトリからも呼びだれるためアクセス権は自リポジトリ権限の
+# GITHUB_TOKENでなくPATを使っている
+name: deploy-job-self
+
+on:
+  workflow_call:
+    inputs:
+      repo:
+        required: true
+        type: string
+      with_image:
+        type: boolean
+        default: false
+
+defaults:
+  run:
+    working-directory: build
+
+jobs:
+  deploy-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.repo }}
+        path: build
+    - name: Set up JDK 17 for GitHub
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        server-id: github
+        server-username: REPOSITORY_SERVER_USER
+        server-password: REPOSITORY_SERVER_PASSWORD
+        settings-path: ${{ github.workspace }}
+    - name: Build jar and Publish to GitHub Packages
+      run: mvn -B -Pcli,copy-libs deploy -s $GITHUB_WORKSPACE/settings.xml 
+      env:
+        REPOSITORY_SERVER_USER: ${{ secrets.REPOSITORY_SERVER_USER }}
+        REPOSITORY_SERVER_PASSWORD: ${{ secrets.REPOSITORY_SERVER_PASSWORD }}
+    - if: inputs.with_image
+      name: Set up JDK 17 for ghcr.io
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        server-id: ghcr.io
+        server-username: REPOSITORY_SERVER_USER
+        server-password: REPOSITORY_SERVER_PASSWORD
+        settings-path: ${{ github.workspace }}
+    - if: inputs.with_image
+      name: prepare IMAGE_TAG
+      run: echo "IMAGE_TAG=`git show --format='%H' --no-patch`" >> $GITHUB_ENV
+    - if: inputs.with_image
+      name: Build Image and Push to GitHub Packages
+      run: |
+        mvn -B \
+          docker:build \
+          docker:push \
+          -Dimage.tag=$IMAGE_TAG \
+          -DskipTests \
+          -s $GITHUB_WORKSPACE/settings.xml 
+      env:
+        REPOSITORY_SERVER_USER: ${{ secrets.REPOSITORY_SERVER_USER }}
+        REPOSITORY_SERVER_PASSWORD: ${{ secrets.REPOSITORY_SERVER_PASSWORD }}

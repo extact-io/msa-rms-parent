@@ -7,7 +7,7 @@ on:
 
 jobs:
   execute:
-    uses: ./.github/workflows/deploy-job-self.yml
+    uses: ./.github/workflows/deploy-job.yml
     with:
       repo: ${{ github.repository }}
     secrets: inherit
