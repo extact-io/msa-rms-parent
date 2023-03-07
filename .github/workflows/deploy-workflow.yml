@@ -1,4 +1,4 @@
-# Workflow - Publish to GitHub Packages
+# Workflow - build, publish jar GitHub Packages for self repository(msa-rms-parent)
 name: deploy-workflow
 
 on:

@@ -1,4 +1,4 @@
-# Workflow - Publish to GitHub Packages for All
+# Workflow - build, publish jar and image to GitHub Packages for all
 name: deploy-all-workflow
 
 on:
@@ -8,20 +8,20 @@ on:
 
 jobs:
   parent:
-    uses: ./.github/workflows/deploy-job-self.yml
+    uses: ./.github/workflows/deploy-job.yml
     with:
       repo: extact-io/msa-rms-parent
 
   platform:
     needs: parent
-    uses: ./.github/workflows/deploy-job-self.yml
+    uses: ./.github/workflows/deploy-job.yml
     secrets: inherit
     with:
       repo: extact-io/msa-rms-platform
 
   apigateway:
     needs: platform
-    uses: ./.github/workflows/deploy-job-self.yml
+    uses: ./.github/workflows/deploy-job.yml
     secrets: inherit
     with:
       repo: extact-io/msa-rms-apigateway
@@ -29,7 +29,7 @@ jobs:
 
   service-item:
     needs: platform
-    uses: ./.github/workflows/deploy-job-self.yml
+    uses: ./.github/workflows/deploy-job.yml
     secrets: inherit
     with:
       repo: extact-io/msa-rms-service-item
@@ -37,7 +37,7 @@ jobs:
 
   service-reservation:
     needs: platform
-    uses: ./.github/workflows/deploy-job-self.yml
+    uses: ./.github/workflows/deploy-job.yml
     secrets: inherit
     with:
       repo: extact-io/msa-rms-service-reservation
@@ -45,7 +45,7 @@ jobs:
 
   service-user:
     needs: platform
-    uses: ./.github/workflows/deploy-job-self.yml
+    uses: ./.github/workflows/deploy-job.yml
     secrets: inherit
     with:
       repo: extact-io/msa-rms-service-user
@@ -53,7 +53,7 @@ jobs:
 
   ui-console:
     needs: platform
-    uses: ./.github/workflows/deploy-job-self.yml
+    uses: ./.github/workflows/deploy-job.yml
     secrets: inherit
     with:
       repo: extact-io/msa-rms-ui-console

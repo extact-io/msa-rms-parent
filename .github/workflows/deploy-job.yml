@@ -1,4 +1,4 @@
-# Reusable Workflow for build, publish jar and image to GitHub Packages
+# Reusable Workflow - for build, publish jar and image to GitHub Packages
 # --------------------------------------------------
 # msa-rms以外のリポジトリからも呼びだれるためアクセス権は自リポジトリ権限の
 # GITHUB_TOKENでなくPATを使っている
