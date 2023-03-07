@@ -19,16 +19,19 @@ defaults:
     working-directory: build
 
 jobs:
-  deploy-image:
+  deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+
     steps:
     - uses: actions/checkout@v3
       with:
         repository: ${{ inputs.repo }}
         path: build
+
+    # build jar and deploy steps
     - name: Set up JDK 17 for GitHub
       uses: actions/setup-java@v3
       with:
@@ -43,6 +46,8 @@ jobs:
       env:
         REPOSITORY_SERVER_USER: ${{ secrets.REPOSITORY_SERVER_USER }}
         REPOSITORY_SERVER_PASSWORD: ${{ secrets.REPOSITORY_SERVER_PASSWORD }}
+
+    # build image and push steps
     - if: inputs.with_image
       name: Set up JDK 17 for ghcr.io
       uses: actions/setup-java@v3
