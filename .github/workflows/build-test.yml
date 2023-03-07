@@ -23,7 +23,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: extact-io/msa-rms-parent
-        path: build
+        path: ${{ defaults.run.outputs.working-directory }}
     - name: prepare IMAGE_TAG
       run: echo "IMAGE_TAG=`git show --format='%H' --no-patch`" >> $GITHUB_ENV
       #working-directory: msa-rms-parent
