@@ -19,5 +19,6 @@ jobs:
 
   deploy-all:
     if: ${{ !failure() }}
+    needs: verify-all
     uses: ./.github/workflows/deploy-all-workflow.yml
     secrets: inherit
