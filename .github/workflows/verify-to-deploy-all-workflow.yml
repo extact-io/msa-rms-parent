@@ -1,4 +1,4 @@
-# Workflow - Publish to GitHub Packages for All
+# Workflow - Verify and Publish to GitHub Packages for All
 name: verify-to-deploy-all-workflow
 
 on:
@@ -15,7 +15,9 @@ jobs:
   verify-all:
     if: ${{ !inputs.skip-verify }}
     uses: ./.github/workflows/verify-all-workflow.yml
+    secrets: inherit
 
   deploy-all:
     if: ${{ !failure() }}
     uses: ./.github/workflows/deploy-all-workflow.yml
+    secrets: inherit
