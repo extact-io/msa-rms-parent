@@ -21,9 +21,9 @@ jobs:
     # install msa-rms-parent for execution prepare
     - name: prepare execution - checkout msa-rms-parent
       uses: actions/checkout@v3
-      #with:
-        #repository: extact-io/msa-rms-parent
-        #path: msa-rms-parent
+      with:
+        repository: extact-io/msa-rms-parent
+        path: build
     - name: prepare IMAGE_TAG
       run: echo "IMAGE_TAG=`git show --format='%H' --no-patch`" >> $GITHUB_ENV
       #working-directory: msa-rms-parent
