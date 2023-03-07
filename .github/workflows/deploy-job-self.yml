@@ -54,6 +54,8 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         server-id: ghcr.io
+        server-username: REPOSITORY_SERVER_USER
+        server-password: REPOSITORY_SERVER_PASSWORD
         settings-path: ${{ github.workspace }}
     - if: inputs.with_image
       name: Push Image to GitHub Packages
@@ -62,7 +64,8 @@ jobs:
           -Dimage.tag=$IMAGE_TAG \
           -s $GITHUB_WORKSPACE/settings.xml
       env:
-        GITHUB_TOKEN: ${{ github.token }}
+        REPOSITORY_SERVER_USER: ${{ secrets.REPOSITORY_SERVER_USER }}
+        REPOSITORY_SERVER_PASSWORD: ${{ secrets.REPOSITORY_SERVER_PASSWORD }}
     - if: ${{ !inputs.with_image }}
       name: Publish jar to GitHub Packages
       run: mvn -B -Pcli deploy -DskipTests -s $GITHUB_WORKSPACE/settings.xml
