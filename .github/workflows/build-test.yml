@@ -21,7 +21,7 @@ jobs:
         repository: extact-io/msa-rms-parent
         path: msa-rms-parent
     - name: prepare IMAGE_TAG
-      run: echo "IMAGE_TAG=`git show --format='%H' --no-patch`"
+      run: echo "IMAGE_TAG=`git show --format='%H' --no-patch`" >> $GITHUB_ENV
       working-directory: msa-rms-parent
     - name: prepare execution - install msa-rms-parent
       run: echo ${{ env.IMAGE_TAG }}
