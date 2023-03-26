@@ -2,7 +2,7 @@
 # --------------------------------------------------
 # msa-rms以外のリポジトリからも呼びだれるためアクセス権は自リポジトリ権限の
 # GITHUB_TOKENでなくPATを使っている
-name: deploy-job-self
+name: deploy-job
 
 on:
   workflow_call:
