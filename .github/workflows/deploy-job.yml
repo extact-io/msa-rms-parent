@@ -50,7 +50,7 @@ jobs:
       env:
         REPOSITORY_SERVER_USER: ${{ secrets.REPOSITORY_SERVER_USER }}
         REPOSITORY_SERVER_PASSWORD: ${{ secrets.REPOSITORY_SERVER_PASSWORD }}
-      run: mvn -B -Pcli,copy-libs deploy -s $GITHUB_WORKSPACE/settings.xml 
+      run: mvn -B -Pcli,copy-libs deploy -DskipTests -s $GITHUB_WORKSPACE/settings.xml 
 
     # build image and push steps
     - if: inputs.with_image
@@ -95,17 +95,17 @@ jobs:
         env:
           IMAGE_TAG: ${{ needs.deploy_to_repo.outputs.image_tag }}
         run: |
-          mkdir ./target/deployment
-          cp ./env/deployment/appspec.yml ./target/deployment
-          cp ./env/deployment/logback-production.xml ./target/deployment
-          cp -r ./env/deployment/scripts ./target/deployment
-          echo $IMAGE_TAG > ./target/deployment/image_tag
+          mkdir ./deployment
+          cp ./env/deployment/appspec.yml ./deployment
+          cp ./env/deployment/logback-production.xml ./deployment
+          cp -r ./env/deployment/scripts ./deployment
+          echo $IMAGE_TAG > ./deployment/image_tag
           ZIP_NAME="deployment/${{ inputs.aws_appname }}-"`date "+%Y%m%d_%H%M%S"`.zip
           aws deploy push \
             --application-name ${{ inputs.aws_appname }} \
             --s3-location s3://rms-codedeploy-bucket/$ZIP_NAME \
             --ignore-hidden-files \
-            --source ./target/deployment
+            --source ./deployment
           aws deploy create-deployment \
             --application-name ${{ inputs.aws_appname }} \
             --deployment-config-name CodeDeployDefault.OneAtATime \
