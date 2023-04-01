@@ -87,23 +87,27 @@ jobs:
     if: ${{ inputs.deploy_type == 'ec2' }}
     runs-on: ubuntu-latest
     steps:
-    - name: deploy to ec2 by codedeploy
-      env:
-        IMAGE_TAG: ${{ needs.deploy_to_repo.outputs.image_tag }}
-      run: |
-        mkdir ./target/deployment
-        cp ./env/deployment/appspec.yml ./target/deployment
-        cp ./env/deployment/logback-production.xml ./target/deployment
-        cp -r ./env/deployment/scripts ./target/deployment
-        echo $IMAGE_TAG > ./target/deployment/image_tag
-        ZIP_NAME="deployment/${{ inputs.aws_appname }}-"`date "+%Y%m%d_%H%M%S"`.zip
-        aws deploy push \
-          --application-name ${{ inputs.aws_appname }} \
-          --s3-location s3://rms-codedeploy-bucket/$ZIP_NAME \
-          --ignore-hidden-files \
-          --source ./target/deployment
-        aws deploy create-deployment \
-          --application-name ${{ inputs.aws_appname }} \
-          --deployment-config-name CodeDeployDefault.OneAtATime \
-          --deployment-group-name ${{ inputs.aws_appname }}-deploy-group \
-          --s3-location bucket=rms-codedeploy-bucket,bundleType=zip,key=$ZIP_NAME
+      - uses: actions/checkout@v3
+        with:
+          repository: ${{ inputs.repo }}
+          path: build
+      - name: deploy to ec2 by codedeploy
+        env:
+          IMAGE_TAG: ${{ needs.deploy_to_repo.outputs.image_tag }}
+        run: |
+          mkdir ./target/deployment
+          cp ./env/deployment/appspec.yml ./target/deployment
+          cp ./env/deployment/logback-production.xml ./target/deployment
+          cp -r ./env/deployment/scripts ./target/deployment
+          echo $IMAGE_TAG > ./target/deployment/image_tag
+          ZIP_NAME="deployment/${{ inputs.aws_appname }}-"`date "+%Y%m%d_%H%M%S"`.zip
+          aws deploy push \
+            --application-name ${{ inputs.aws_appname }} \
+            --s3-location s3://rms-codedeploy-bucket/$ZIP_NAME \
+            --ignore-hidden-files \
+            --source ./target/deployment
+          aws deploy create-deployment \
+            --application-name ${{ inputs.aws_appname }} \
+            --deployment-config-name CodeDeployDefault.OneAtATime \
+            --deployment-group-name ${{ inputs.aws_appname }}-deploy-group \
+            --s3-location bucket=rms-codedeploy-bucket,bundleType=zip,key=$ZIP_NAME
