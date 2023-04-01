@@ -3,7 +3,6 @@ name: verify-to-deploy-all-workflow
 
 on:
   workflow_dispatch:
-    branches: [ main ]
     inputs:
       skip-verify:
         description: skip verify?

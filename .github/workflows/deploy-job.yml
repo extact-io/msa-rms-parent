@@ -13,18 +13,23 @@ on:
       with_image:
         type: boolean
         default: false
-
+      deploy_type:
+        type: string
+      aws_appname:
+        type: string
+    
 defaults:
   run:
     working-directory: build
 
 jobs:
-  deploy:
+  deploy_to_repo:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
+    outputs:
+      output_image_tag: ${{ steps.output_image_tag.outputs.test }}
     steps:
     - uses: actions/checkout@v3
       with:
@@ -42,10 +47,10 @@ jobs:
         server-password: REPOSITORY_SERVER_PASSWORD
         settings-path: ${{ github.workspace }}
     - name: Build jar and Publish to GitHub Packages
-      run: mvn -B -Pcli,copy-libs deploy -s $GITHUB_WORKSPACE/settings.xml 
       env:
         REPOSITORY_SERVER_USER: ${{ secrets.REPOSITORY_SERVER_USER }}
         REPOSITORY_SERVER_PASSWORD: ${{ secrets.REPOSITORY_SERVER_PASSWORD }}
+      run: mvn -B -Pcli,copy-libs deploy -s $GITHUB_WORKSPACE/settings.xml 
 
     # build image and push steps
     - if: inputs.with_image
@@ -63,6 +68,9 @@ jobs:
       run: echo "IMAGE_TAG=`git show --format='%H' --no-patch`" >> $GITHUB_ENV
     - if: inputs.with_image
       name: Build Image and Push to GitHub Packages
+      env:
+        REPOSITORY_SERVER_USER: ${{ secrets.REPOSITORY_SERVER_USER }}
+        REPOSITORY_SERVER_PASSWORD: ${{ secrets.REPOSITORY_SERVER_PASSWORD }}
       run: |
         mvn -B \
           docker:build \
@@ -70,6 +78,32 @@ jobs:
           -Dimage.tag=$IMAGE_TAG \
           -DskipTests \
           -s $GITHUB_WORKSPACE/settings.xml 
+    - if: inputs.with_image
+      id: output_image_tag
+      run: echo $IMAGE_TAG >> $GITHUB_OUTPUT 
+  
+  deploy_to_ec2:
+    needs: deploy_to_repo
+    if: ${{ inputs.deploy_type == 'ec2' }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: deploy to ec2 by codedeploy
       env:
-        REPOSITORY_SERVER_USER: ${{ secrets.REPOSITORY_SERVER_USER }}
-        REPOSITORY_SERVER_PASSWORD: ${{ secrets.REPOSITORY_SERVER_PASSWORD }}
+        IMAGE_TAG: ${{ needs.deploy_to_repo.outputs.output_image_tag }}
+      run: |
+        mkdir ./target/deployment
+        cp ./env/deployment/appspec.yml ./target/deployment
+        cp ./env/deployment/logback-production.xml ./target/deployment
+        cp -r ./env/deployment/scripts ./target/deployment
+        echo $IMAGE_TAG > ./target/deployment/git_sha
+        ZIP_NAME="deployment/${{ inputs.aws_appname }}-"`date "+%Y%m%d_%H%M%S"`.zip
+        aws deploy push \
+          --application-name ${{ inputs.aws_appname }} \
+          --s3-location s3://rms-codedeploy-bucket/$ZIP_NAME \
+          --ignore-hidden-files \
+          --source ./target/deployment
+        aws deploy create-deployment \
+          --application-name ${{ inputs.aws_appname }} \
+          --deployment-config-name CodeDeployDefault.OneAtATime \
+          --deployment-group-name ${{ inputs.aws_appname }}-deploy-group \
+          --s3-location bucket=rms-codedeploy-bucket,bundleType=zip,key=$ZIP_NAME

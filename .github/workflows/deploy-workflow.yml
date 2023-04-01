@@ -3,7 +3,6 @@ name: deploy-workflow
 
 on:
   workflow_dispatch:
-    branches: [ main ]
 
 jobs:
   execute:

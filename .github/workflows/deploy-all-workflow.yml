@@ -3,7 +3,6 @@ name: deploy-all-workflow
 
 on:
   workflow_dispatch:
-    branches: [ main ]
   workflow_call:
 
 jobs:
@@ -26,6 +25,8 @@ jobs:
     with:
       repo: extact-io/msa-rms-apigateway
       with_image: true
+      deploy_type: ec2
+      aws_appname: msa-apigateway
     secrets: inherit
 
   service-item:
