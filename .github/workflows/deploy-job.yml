@@ -50,7 +50,7 @@ jobs:
       env:
         REPOSITORY_SERVER_USER: ${{ secrets.REPOSITORY_SERVER_USER }}
         REPOSITORY_SERVER_PASSWORD: ${{ secrets.REPOSITORY_SERVER_PASSWORD }}
-      run: mvn -B -Pcli,copy-libs deploy -DskipTests -s $GITHUB_WORKSPACE/settings.xml 
+      run: mvn -B -Pcli,copy-libs deploy -s $GITHUB_WORKSPACE/settings.xml
 
     # build image and push steps
     - if: inputs.with_image
@@ -97,7 +97,7 @@ jobs:
 
       - name: configure aws credentials
         id: credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-identity-providers-federation-github-actions
           aws-region: ap-northeast-1
