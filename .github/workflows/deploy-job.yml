@@ -29,7 +29,7 @@ jobs:
       contents: read
       packages: write
     outputs:
-      output_image_tag: ${{ steps.output_image_tag.outputs.test }}
+      image_tag: ${{ steps.output_image_tag.outputs.image_tag }}
     steps:
     - uses: actions/checkout@v3
       with:
@@ -80,7 +80,7 @@ jobs:
           -s $GITHUB_WORKSPACE/settings.xml 
     - if: inputs.with_image
       id: output_image_tag
-      run: echo $IMAGE_TAG >> $GITHUB_OUTPUT 
+      run: echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT 
   
   deploy_to_ec2:
     needs: deploy_to_repo
@@ -89,13 +89,13 @@ jobs:
     steps:
     - name: deploy to ec2 by codedeploy
       env:
-        IMAGE_TAG: ${{ needs.deploy_to_repo.outputs.output_image_tag }}
+        IMAGE_TAG: ${{ needs.deploy_to_repo.outputs.image_tag }}
       run: |
         mkdir ./target/deployment
         cp ./env/deployment/appspec.yml ./target/deployment
         cp ./env/deployment/logback-production.xml ./target/deployment
         cp -r ./env/deployment/scripts ./target/deployment
-        echo $IMAGE_TAG > ./target/deployment/git_sha
+        echo $IMAGE_TAG > ./target/deployment/image_tag
         ZIP_NAME="deployment/${{ inputs.aws_appname }}-"`date "+%Y%m%d_%H%M%S"`.zip
         aws deploy push \
           --application-name ${{ inputs.aws_appname }} \
