@@ -37,7 +37,7 @@ jobs:
         path: build
 
     # build jar and deploy steps
-    - name: Set up JDK 17 for GitHub
+    - name: Set up JDK 17 for Package Registry
       uses: actions/setup-java@v3
       with:
         java-version: '17'
@@ -54,7 +54,7 @@ jobs:
 
     # build image and push steps
     - if: inputs.with_image
-      name: Set up JDK 17 for ghcr.io
+      name: Set up JDK 17 for Container Registry
       uses: actions/setup-java@v3
       with:
         java-version: '17'
@@ -64,7 +64,7 @@ jobs:
         server-password: REPOSITORY_SERVER_PASSWORD
         settings-path: ${{ github.workspace }}
     - if: inputs.with_image
-      name: prepare IMAGE_TAG
+      name: Prepare IMAGE_TAG
       run: echo "IMAGE_TAG=`git show --format='%H' --no-patch`" >> $GITHUB_ENV
     - if: inputs.with_image
       name: Build Image and Push to GitHub Packages
@@ -91,6 +91,13 @@ jobs:
         with:
           repository: ${{ inputs.repo }}
           path: build
+
+      - name: configure aws credentials
+        id: credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-identity-providers-federation-github-actions
+          aws-region: ap-northeast-1
       - name: deploy to ec2 by codedeploy
         env:
           IMAGE_TAG: ${{ needs.deploy_to_repo.outputs.image_tag }}
