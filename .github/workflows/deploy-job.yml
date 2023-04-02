@@ -28,6 +28,8 @@ on:
       container-registry:
         type: string
         default: "ghcr.io"
+      image-name:
+        type: string
       ecs-servicename:
         type: string
       ecs-clustername:
@@ -166,7 +168,7 @@ jobs:
       with:
         task-definition: task-definition.json
         container-name: ${{ inputs.ecs-containername }}
-        image: "${{ inputs.container-registry }}/${{ inputs.repo }}:${{ needs.deploy_to_repo.outputs.image_tag }}"
+        image: "${{ inputs.container-registry }}/${{ inputs.image-name }}:${{ needs.deploy_to_repo.outputs.image_tag }}"
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
