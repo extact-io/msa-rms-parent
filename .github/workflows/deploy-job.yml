@@ -7,26 +7,30 @@ name: deploy-job
 on:
   workflow_call:
     inputs:
+      skip-test:
+        required: true
+        type: boolean
+        default: false
       repo:
         required: true
         type: string
-      with_image:
+      with-image:
         type: boolean
         default: false
-      deploy_type:
+      deploy-type:
         type: string
-      aws_appname:
+      aws-appname:
         type: string
-      ecs_taskname:
+      ecs-taskname:
         type: string
-      ecs_containername:
+      ecs-containername:
         type: string
-      container_registry:
+      container-registry:
         type: string
         default: "ghcr.io"
-      ecs_servicename:
+      ecs-servicename:
         type: string
-      ecs_clustername:
+      ecs-clustername:
         type: string
         default: "rms-service-cluster"
 
@@ -62,10 +66,10 @@ jobs:
       env:
         REPOSITORY_SERVER_USER: ${{ secrets.REPOSITORY_SERVER_USER }}
         REPOSITORY_SERVER_PASSWORD: ${{ secrets.REPOSITORY_SERVER_PASSWORD }}
-      run: mvn -B -Pcli,copy-libs deploy -s $GITHUB_WORKSPACE/settings.xml
+      run: mvn -B -Pcli,copy-libs deploy -DskipTests=${{ inputs.skip-test }} -s $GITHUB_WORKSPACE/settings.xml
 
     # build image and push steps
-    - if: inputs.with_image
+    - if: inputs.with-image
       name: Set up JDK 17 for Container Registry
       uses: actions/setup-java@v3
       with:
@@ -75,10 +79,10 @@ jobs:
         server-username: REPOSITORY_SERVER_USER
         server-password: REPOSITORY_SERVER_PASSWORD
         settings-path: ${{ github.workspace }}
-    - if: inputs.with_image
+    - if: inputs.with-image
       name: Prepare IMAGE_TAG
       run: echo "IMAGE_TAG=`git show --format='%H' --no-patch`" >> $GITHUB_ENV
-    - if: inputs.with_image
+    - if: inputs.with-image
       name: Build Image and Push to GitHub Packages
       env:
         REPOSITORY_SERVER_USER: ${{ secrets.REPOSITORY_SERVER_USER }}
@@ -90,13 +94,13 @@ jobs:
           -Dimage.tag=$IMAGE_TAG \
           -DskipTests \
           -s $GITHUB_WORKSPACE/settings.xml 
-    - if: inputs.with_image
+    - if: inputs.with-image
       id: output_image_tag
       run: echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT 
   
   deploy_to_ec2:
     needs: deploy_to_repo
-    if: ${{ inputs.deploy_type == 'ec2' }}
+    if: ${{ inputs.deploy-type == 'ec2' }}
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -122,22 +126,25 @@ jobs:
         cp ./env/deployment/logback-production.xml ./deployment
         cp -r ./env/deployment/scripts ./deployment
         echo $IMAGE_TAG > ./deployment/image_tag
-        ZIP_NAME="deployment/${{ inputs.aws_appname }}-"`date "+%Y%m%d_%H%M%S"`.zip
+        ZIP_NAME="deployment/${{ inputs.aws-appname }}-"`date "+%Y%m%d_%H%M%S"`.zip
         aws deploy push \
-          --application-name ${{ inputs.aws_appname }} \
+          --application-name ${{ inputs.aws-appname }} \
           --s3-location s3://rms-codedeploy-bucket/$ZIP_NAME \
           --ignore-hidden-files \
           --source ./deployment
         aws deploy create-deployment \
-          --application-name ${{ inputs.aws_appname }} \
+          --application-name ${{ inputs.aws-appname }} \
           --deployment-config-name CodeDeployDefault.OneAtATime \
-          --deployment-group-name ${{ inputs.aws_appname }}-deploy-group \
+          --deployment-group-name ${{ inputs.aws-appname }}-deploy-group \
           --s3-location bucket=rms-codedeploy-bucket,bundleType=zip,key=$ZIP_NAME
 
   deploy_to_ecs:
     needs: deploy_to_repo
-    if: ${{ inputs.deploy_type == 'ecs' }}
+    if: ${{ inputs.deploy-type == 'ecs' }}
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
     - name: configure aws credentials
       id: credentials
@@ -148,7 +155,7 @@ jobs:
     - name: Download task definition
       run: |
         aws ecs describe-task-definition \
-          --task-definition ${{ inputs.ecs_taskname }} \
+          --task-definition ${{ inputs.ecs-taskname }} \
           --query taskDefinition \
           > task-definition.json
     - name: Fill in the new image ID in the Amazon ECS task definition
@@ -156,12 +163,12 @@ jobs:
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: task-definition.json
-        container-name: ${{ inputs.ecs_containername }}
-        image: "${{ inputs.container_registry }}/${{ inputs.repo }}:${{ needs.deploy_to_repo.outputs.image_tag }}"
+        container-name: ${{ inputs.ecs-containername }}
+        image: "${{ inputs.container-registry }}/${{ inputs.repo }}:${{ needs.deploy_to_repo.outputs.image_tag }}"
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: ${{ inputs.ecs_servicename }}
-        cluster: ${{ inputs.ecs_clustername }}
+        service: ${{ inputs.ecs-servicename }}
+        cluster: ${{ inputs.ecs-clustername }}
         wait-for-service-stability: false

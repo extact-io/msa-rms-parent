@@ -3,13 +3,24 @@ name: deploy-all-workflow
 
 on:
   workflow_dispatch:
+    inputs:
+      skip-test:
+        required: true
+        type: boolean
+        default: false
   workflow_call:
+    inputs:
+      skip-test:
+        required: true
+        type: boolean
+        default: false
 
 jobs:
   parent:
     uses: ./.github/workflows/deploy-job.yml
     with:
       repo: extact-io/msa-rms-parent
+      skip-test: ${{ inputs.skip-test }}
     secrets: inherit
 
   platform:
@@ -17,6 +28,7 @@ jobs:
     uses: ./.github/workflows/deploy-job.yml
     with:
       repo: extact-io/msa-rms-platform
+      skip-test: ${{ inputs.skip-test }}
     secrets: inherit
 
   apigateway:
@@ -24,9 +36,10 @@ jobs:
     uses: ./.github/workflows/deploy-job.yml
     with:
       repo: extact-io/msa-rms-apigateway
-      with_image: true
-      deploy_type: ec2
-      aws_appname: msa-apigateway
+      skip-test: ${{ inputs.skip-test }}
+      with-image: true
+      deploy-type: ec2
+      aws-appname: msa-apigateway
     secrets: inherit
 
   service-item:
@@ -34,7 +47,8 @@ jobs:
     uses: ./.github/workflows/deploy-job.yml
     with:
       repo: extact-io/msa-rms-service-item
-      with_image: true
+      skip-test: ${{ inputs.skip-test }}
+      with-image: true
     secrets: inherit
 
   service-reservation:
@@ -42,7 +56,8 @@ jobs:
     uses: ./.github/workflows/deploy-job.yml
     with:
       repo: extact-io/msa-rms-service-reservation
-      with_image: true
+      skip-test: ${{ inputs.skip-test }}
+      with-image: true
     secrets: inherit
 
   service-user:
@@ -50,7 +65,8 @@ jobs:
     uses: ./.github/workflows/deploy-job.yml
     with:
       repo: extact-io/msa-rms-service-user
-      with_image: true
+      skip-test: ${{ inputs.skip-test }}
+      with-image: true
     secrets: inherit
 
   ui-console:
@@ -58,4 +74,5 @@ jobs:
     uses: ./.github/workflows/deploy-job.yml
     with:
       repo: extact-io/msa-rms-ui-console
+      skip-test: ${{ inputs.skip-test }}
     secrets: inherit
