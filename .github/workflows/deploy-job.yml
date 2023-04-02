@@ -17,7 +17,19 @@ on:
         type: string
       aws_appname:
         type: string
-    
+      ecs_taskname:
+        type: string
+      ecs_containername:
+        type: string
+      container_registry:
+        type: string
+        default: "ghcr.io"
+      ecs_servicename:
+        type: string
+      ecs_clustername:
+        type: string
+        default: "rms-service-cluster"
+
 defaults:
   run:
     working-directory: build
@@ -90,34 +102,66 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - uses: actions/checkout@v3
-        with:
-          repository: ${{ inputs.repo }}
-          path: build
+    - uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.repo }}
+        path: build
 
-      - name: configure aws credentials
-        id: credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
-        with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-identity-providers-federation-github-actions
-          aws-region: ap-northeast-1
-      - name: deploy to ec2 by codedeploy
-        env:
-          IMAGE_TAG: ${{ needs.deploy_to_repo.outputs.image_tag }}
-        run: |
-          mkdir ./deployment
-          cp ./env/deployment/appspec.yml ./deployment
-          cp ./env/deployment/logback-production.xml ./deployment
-          cp -r ./env/deployment/scripts ./deployment
-          echo $IMAGE_TAG > ./deployment/image_tag
-          ZIP_NAME="deployment/${{ inputs.aws_appname }}-"`date "+%Y%m%d_%H%M%S"`.zip
-          aws deploy push \
-            --application-name ${{ inputs.aws_appname }} \
-            --s3-location s3://rms-codedeploy-bucket/$ZIP_NAME \
-            --ignore-hidden-files \
-            --source ./deployment
-          aws deploy create-deployment \
-            --application-name ${{ inputs.aws_appname }} \
-            --deployment-config-name CodeDeployDefault.OneAtATime \
-            --deployment-group-name ${{ inputs.aws_appname }}-deploy-group \
-            --s3-location bucket=rms-codedeploy-bucket,bundleType=zip,key=$ZIP_NAME
+    - name: configure aws credentials
+      id: credentials
+      uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-identity-providers-federation-github-actions
+        aws-region: ap-northeast-1
+    - name: deploy to ec2 by codedeploy
+      env:
+        IMAGE_TAG: ${{ needs.deploy_to_repo.outputs.image_tag }}
+      run: |
+        mkdir ./deployment
+        cp ./env/deployment/appspec.yml ./deployment
+        cp ./env/deployment/logback-production.xml ./deployment
+        cp -r ./env/deployment/scripts ./deployment
+        echo $IMAGE_TAG > ./deployment/image_tag
+        ZIP_NAME="deployment/${{ inputs.aws_appname }}-"`date "+%Y%m%d_%H%M%S"`.zip
+        aws deploy push \
+          --application-name ${{ inputs.aws_appname }} \
+          --s3-location s3://rms-codedeploy-bucket/$ZIP_NAME \
+          --ignore-hidden-files \
+          --source ./deployment
+        aws deploy create-deployment \
+          --application-name ${{ inputs.aws_appname }} \
+          --deployment-config-name CodeDeployDefault.OneAtATime \
+          --deployment-group-name ${{ inputs.aws_appname }}-deploy-group \
+          --s3-location bucket=rms-codedeploy-bucket,bundleType=zip,key=$ZIP_NAME
+
+  deploy_to_ecs:
+    needs: deploy_to_repo
+    if: ${{ inputs.deploy_type == 'ecs' }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: configure aws credentials
+      id: credentials
+      uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-identity-providers-federation-github-actions
+        aws-region: ap-northeast-1
+    - name: Download task definition
+      run: |
+        aws ecs describe-task-definition \
+          --task-definition ${{ inputs.ecs_taskname }} \
+          --query taskDefinition \
+          > task-definition.json
+    - name: Fill in the new image ID in the Amazon ECS task definition
+      id: task-def
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: task-definition.json
+        container-name: ${{ inputs.ecs_containername }}
+        image: "${{ inputs.container_registry }}/${{ inputs.repo }}:${{ needs.deploy_to_repo.outputs.image_tag }}"
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.task-def.outputs.task-definition }}
+        service: ${{ inputs.ecs_servicename }}
+        cluster: ${{ inputs.ecs_clustername }}
+        wait-for-service-stability: false
