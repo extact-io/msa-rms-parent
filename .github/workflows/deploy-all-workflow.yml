@@ -49,6 +49,11 @@ jobs:
       repo: extact-io/msa-rms-service-item
       skip-test: ${{ inputs.skip-test }}
       with-image: true
+      deploy-type: ecs
+      ecs-taskname: item-service-task
+      ecs-containername: item-service-container
+      image-name: extact-io/msa-service-item
+      ecs-servicename: item-service
     secrets: inherit
 
   service-reservation:
@@ -58,6 +63,11 @@ jobs:
       repo: extact-io/msa-rms-service-reservation
       skip-test: ${{ inputs.skip-test }}
       with-image: true
+      deploy-type: ecs
+      ecs-taskname: reservation-service-task
+      ecs-containername: reservation-service-container
+      image-name: extact-io/msa-service-reservation
+      ecs-servicename: reservation-service
     secrets: inherit
 
   service-user:
@@ -67,6 +77,11 @@ jobs:
       repo: extact-io/msa-rms-service-user
       skip-test: ${{ inputs.skip-test }}
       with-image: true
+      deploy-type: ecs
+      ecs-taskname: user-service-task
+      ecs-containername: user-service-container
+      image-name: extact-io/msa-service-user
+      ecs-servicename: user-service
     secrets: inherit
 
   ui-console:
