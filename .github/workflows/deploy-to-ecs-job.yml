@@ -31,7 +31,7 @@ jobs:
     - name: Download build Artifact of IMAGE_TAG
       uses: actions/download-artifact@v3
       with:
-        name: ${{ inputs.ecs-containername }}-image_tag
+        name: ${{ inputs.aws-appname }}-image_tag
         path: download
     - name: Prepare IMAGE_TAG
       run: echo "IMAGE_TAG=`cat ./download/image_tag`" >> $GITHUB_ENV
