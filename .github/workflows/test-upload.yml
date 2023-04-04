@@ -1,11 +1,11 @@
 name: test-upload
 
 on:
-  workflow_dispatch:
-  push:
-    branches: [ main ]
-    paths: 
-      - '**/test-upload.yml'
+  workflow_call:
+    inputs:
+      appname:
+        required: true
+        type: string
 
 jobs:
   upload:
@@ -22,21 +22,6 @@ jobs:
     - name: Upload build Artifact of IMAGE_TAG
       uses: actions/upload-artifact@v3
       with:
-        name: image_tag_file
+        name: ${{ inputs.appname }}
         path: build/image_tag
         retention-days: 1
-
-  download:
-    runs-on: ubuntu-latest
-    needs: [upload]
-    defaults:
-      run:
-        working-directory: build
-    steps:
-    - name: Download build Artifact of IMAGE_TAG
-      uses: actions/download-artifact@v3
-      with:
-        name: image_tag_file
-        path: build
-    - name: test file
-      run: cat image_tag
