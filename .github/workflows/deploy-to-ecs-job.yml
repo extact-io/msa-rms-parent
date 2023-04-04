@@ -1,4 +1,4 @@
-name: deploy-ecs-job
+name: deploy-to-ecs-job
 
 on:
   workflow_call:
