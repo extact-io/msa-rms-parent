@@ -1,0 +1,23 @@
+name: test-download
+
+on:
+  workflow_call:
+    inputs:
+      appname:
+        required: true
+        type: string
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: build
+    steps:
+    - name: Download build Artifact of IMAGE_TAG
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ inputs.appname }}
+        path: build
+    - name: test file
+      run: cat image_tag
