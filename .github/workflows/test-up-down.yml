@@ -1,4 +1,4 @@
-name: test-upload
+name: test-up-down
 
 on:
   workflow_dispatch:
@@ -15,6 +15,7 @@ jobs:
     secrets: inherit
 
   download:
+    needs: [upload]
     uses: ./.github/workflows/test-download.yml
     with:
       appname: foo
