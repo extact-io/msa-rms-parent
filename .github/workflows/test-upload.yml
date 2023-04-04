@@ -9,19 +9,14 @@ jobs:
     permissions:
       contents: read
       packages: write
-    defaults:
-      run:
-        working-directory: build
     steps:
     - uses: actions/checkout@v3
-      with:
-        path: build
     - name: Output IMAGE_TAG to file
       run: git show --format='%H' --no-patch > image_tag
     - name: Upload build Artifact of IMAGE_TAG
       uses: actions/upload-artifact@v3
       with:
         name: image_tag
-        path: build/iamge_tag
+        path: iamge_tag
         retention-days: 1
 
