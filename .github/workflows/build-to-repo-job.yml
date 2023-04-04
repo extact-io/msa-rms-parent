@@ -1,0 +1,91 @@
+# Reusable Workflow - for build, publish jar and image to GitHub Packages
+# --------------------------------------------------
+# msa-rms以外のリポジトリからも呼びだれるためアクセス権は自リポジトリ権限の
+# GITHUB_TOKENでなくPATを使っている
+name: build-to-repo-job
+
+on:
+  workflow_call:
+    inputs:
+      skip-test:
+        required: true
+        type: boolean
+        default: false
+      repo:
+        required: true
+        type: string
+      with-image:
+        type: boolean
+        default: false
+      aws-appname:
+        type: string
+
+jobs:
+  deploy_to_repo:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    defaults:
+      run:
+        working-directory: build
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.repo }}
+        path: build
+
+    # build jar and deploy steps
+    - name: Set up JDK 17 for Package Registry
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        server-id: github
+        server-username: REPOSITORY_SERVER_USER
+        server-password: REPOSITORY_SERVER_PASSWORD
+        settings-path: ${{ github.workspace }}
+    - name: Build jar and Publish to GitHub Packages
+      env:
+        REPOSITORY_SERVER_USER: ${{ secrets.REPOSITORY_SERVER_USER }}
+        REPOSITORY_SERVER_PASSWORD: ${{ secrets.REPOSITORY_SERVER_PASSWORD }}
+      run: mvn -B -Pcli,copy-libs deploy -DskipTests=${{ inputs.skip-test }} -s $GITHUB_WORKSPACE/settings.xml
+
+    # build image and push steps
+    - if: inputs.with-image
+      name: Set up JDK 17 for Container Registry
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        server-id: ghcr.io
+        server-username: REPOSITORY_SERVER_USER
+        server-password: REPOSITORY_SERVER_PASSWORD
+        settings-path: ${{ github.workspace }}
+    - if: inputs.with-image
+      name: Prepare IMAGE_TAG
+      run: echo "IMAGE_TAG=`git show --format='%H' --no-patch`" >> $GITHUB_ENV
+    - if: inputs.with-image
+      name: Build Image and Push to GitHub Packages
+      env:
+        REPOSITORY_SERVER_USER: ${{ secrets.REPOSITORY_SERVER_USER }}
+        REPOSITORY_SERVER_PASSWORD: ${{ secrets.REPOSITORY_SERVER_PASSWORD }}
+      run: |
+        mvn -B \
+          docker:build \
+          docker:push \
+          -Dimage.tag=$IMAGE_TAG \
+          -DskipTests \
+          -s $GITHUB_WORKSPACE/settings.xml 
+    - if: inputs.with-image
+      id: output_image_tag
+      run: echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT 
+
+    - name: Output IMAGE_TAG to file
+      run: git show --format='%H' --no-patch > image_tag
+    - name: Upload build Artifact of IMAGE_TAG
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ inputs.aws-appname }}-image_tag
+        path: build/image_tag
+        retention-days: 1

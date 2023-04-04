@@ -1,0 +1,56 @@
+name: deploy-to-ec2-job
+
+on:
+  workflow_call:
+    inputs:
+      repo:
+        required: true
+        type: string
+      aws-appname:
+        type: string
+
+jobs:
+  deploy_to_ec2:
+    needs: deploy_to_repo
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    defaults:
+      run:
+        working-directory: build
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.repo }}
+        path: build
+    - name: Download build Artifact of IMAGE_TAG
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ inputs.aws-appname }}-image_tag
+        path: download
+    - name: Prepare IMAGE_TAG
+      run: echo "IMAGE_TAG=`cat ./download/image_tag`" >> $GITHUB_ENV
+    - name: configure aws credentials
+      uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-identity-providers-federation-github-actions
+        aws-region: ap-northeast-1
+    - name: deploy to ec2 by codedeploy
+      run: |
+        mkdir ./deployment
+        cp ./env/deployment/appspec.yml ./deployment
+        cp ./env/deployment/logback-production.xml ./deployment
+        cp -r ./env/deployment/scripts ./deployment
+        echo $IMAGE_TAG > ./deployment/image_tag
+        ZIP_NAME="deployment/${{ inputs.aws-appname }}-"`date "+%Y%m%d_%H%M%S"`.zip
+        aws deploy push \
+          --application-name ${{ inputs.aws-appname }} \
+          --s3-location s3://rms-codedeploy-bucket/$ZIP_NAME \
+          --ignore-hidden-files \
+          --source ./deployment
+        aws deploy create-deployment \
+          --application-name ${{ inputs.aws-appname }} \
+          --deployment-config-name CodeDeployDefault.OneAtATime \
+          --deployment-group-name ${{ inputs.aws-appname }}-deploy-group \
+          --s3-location bucket=rms-codedeploy-bucket,bundleType=zip,key=$ZIP_NAME

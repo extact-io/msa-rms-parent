@@ -1,4 +1,4 @@
-name: control-test
+name: test-control
 
 on:
   workflow_dispatch:
