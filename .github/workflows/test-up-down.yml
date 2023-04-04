@@ -1,0 +1,21 @@
+name: test-upload
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths: 
+      - '**/test-up-down.yml'
+
+jobs:
+  upload:
+    uses: ./.github/workflows/test-upload.yml
+    with:
+      appname: foo
+    secrets: inherit
+
+  download:
+    uses: ./.github/workflows/test-download.yml
+    with:
+      appname: foo
+    secrets: inherit
