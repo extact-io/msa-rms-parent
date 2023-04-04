@@ -80,10 +80,11 @@ jobs:
     - if: inputs.with-image
       id: output_image_tag
       run: echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT 
-
-    - name: Output IMAGE_TAG to file
+    - if: inputs.with-image
+      name: Output IMAGE_TAG to file
       run: git show --format='%H' --no-patch > image_tag
-    - name: Upload build Artifact of IMAGE_TAG
+    - if: inputs.with-image
+      name: Upload build Artifact of IMAGE_TAG
       uses: actions/upload-artifact@v3
       with:
         name: ${{ inputs.aws-appname }}-image_tag
