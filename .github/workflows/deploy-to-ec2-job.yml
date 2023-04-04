@@ -27,7 +27,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: ${{ inputs.aws-appname }}-image_tag
-        path: download
+        path: build/download
     - name: Prepare IMAGE_TAG
       run: echo "IMAGE_TAG=`cat ./download/image_tag`" >> $GITHUB_ENV
     - name: configure aws credentials
