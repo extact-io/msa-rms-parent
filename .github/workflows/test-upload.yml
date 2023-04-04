@@ -8,11 +8,8 @@ on:
       - '**/test-upload.yml'
 
 jobs:
-  deploy_to_repo:
+  upload:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     defaults:
       run:
         working-directory: build
@@ -25,7 +22,21 @@ jobs:
     - name: Upload build Artifact of IMAGE_TAG
       uses: actions/upload-artifact@v3
       with:
-        name: upfile
+        name: image_tag_file
         path: build/image_tag
         retention-days: 1
+
+  download:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: build
+    steps:
+    - name: Download build Artifact of IMAGE_TAG
+      uses: actions/download-artifact@v3
+      with:
+        name: image_tag_file
+        path: build
+    - name: test file
+      run: cat image_tag
 
