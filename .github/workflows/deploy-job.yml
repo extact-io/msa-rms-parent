@@ -98,7 +98,16 @@ jobs:
     - if: inputs.with-image
       id: output_image_tag
       run: echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT 
-  
+
+    - name: Output IMAGE_TAG to file
+      run: git show --format='%H' --no-patch > image_tag
+    - name: Upload build Artifact of IMAGE_TAG
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ inputs.ecs-containername }}-image_tag
+        path: build/image_tag
+        retention-days: 1
+
   deploy_to_ec2:
     needs: deploy_to_repo
     if: ${{ inputs.deploy-type == 'ec2' }}
@@ -156,6 +165,15 @@ jobs:
       with:
         role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-identity-providers-federation-github-actions
         aws-region: ap-northeast-1
+
+    - name: Download build Artifact of IMAGE_TAG
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ inputs.ecs-containername }}-image_tag
+        path: download
+    - name: Prepare IMAGE_TAG
+      run: echo "IMAGE_TAG=`cat ./download/image_tag`" >> $GITHUB_ENV
+
     - name: Download task definition
       run: |
         aws ecs describe-task-definition \
@@ -168,7 +186,8 @@ jobs:
       with:
         task-definition: task-definition.json
         container-name: ${{ inputs.ecs-containername }}
-        image: "${{ inputs.container-registry }}/${{ inputs.image-name }}:${{ needs.deploy_to_repo.outputs.image_tag }}"
+        #image: "${{ inputs.container-registry }}/${{ inputs.image-name }}:${{ needs.deploy_to_repo.outputs.image_tag }}"
+        image: "${{ inputs.container-registry }}/${{ inputs.image-name }}:$IMAGE_TAG"
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
