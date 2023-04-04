@@ -1,0 +1,27 @@
+name: control-test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy_to_repo:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    defaults:
+      run:
+        working-directory: build
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        path: build
+    - name: Output IMAGE_TAG to file
+      run: git show --format='%H' --no-patch > image_tag
+    - name: Upload build Artifact of IMAGE_TAG
+      uses: actions/upload-artifact@v2
+      with:
+        name: image_tag
+        path: iamge_tag
+        retention-days: 1
+
