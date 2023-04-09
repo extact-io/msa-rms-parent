@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 SERVICE_NAME=$1
 RUNNING_COUNT=`aws ecs describe-services --cluster rms-service-cluster --services $SERVICE_NAME --query 'services[0].runningCount'`
 if [ $(echo $RUNNING_COUNT) != 0 ]; then # trim

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 INSTANCE_ID=i-0a3ef21c1550daf62
 STATUS=`aws ec2 describe-instance-status --instance-ids $INSTANCE_ID --query 'InstanceStatuses[0].InstanceState.Name'`
