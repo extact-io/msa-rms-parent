@@ -6,6 +6,9 @@ on:
 jobs:
   start-ec2:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
     - uses: actions/checkout@v3
     - name: configure aws credentials
@@ -17,6 +20,9 @@ jobs:
       run: ./scripts/ec2_start.sh
   start-ecs-item-service:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
     - uses: actions/checkout@v3
     - name: configure aws credentials
@@ -28,6 +34,9 @@ jobs:
       run: ./scripts/ecs_start.sh item-service
   start-ecs-reservation-service:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
     - uses: actions/checkout@v3
     - name: configure aws credentials
@@ -39,6 +48,9 @@ jobs:
       run: ./scripts/ecs_start.sh reservation-service
   start-ecs-user-service:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
     - uses: actions/checkout@v3
     - name: configure aws credentials
