@@ -1,0 +1,50 @@
+name: stop-aws-services
+
+on:
+  workflow_dispatch:
+
+jobs:
+  stop-ec2:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: configure aws credentials
+      uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-identity-providers-federation-github-actions
+        aws-region: ap-northeast-1
+    - name: Stop EC2 Instance
+      run: ./scripts/ec2_stop.sh
+  stop-ecs-item-service:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: configure aws credentials
+      uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-identity-providers-federation-github-actions
+        aws-region: ap-northeast-1
+    - name: Stop ECS Service
+      run: ./scripts/ecs_stop.sh item-service
+  stop-ecs-reservation-service:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: configure aws credentials
+      uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-identity-providers-federation-github-actions
+        aws-region: ap-northeast-1
+    - name: Stop ECS Service
+      run: ./scripts/ecs_stop.sh reservation-service
+  stop-ecs-user-service:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: configure aws credentials
+      uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-identity-providers-federation-github-actions
+        aws-region: ap-northeast-1
+    - name: Stop ECS Service
+      run: ./scripts/ecs_stop.sh user-service
