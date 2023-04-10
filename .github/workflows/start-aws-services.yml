@@ -17,7 +17,7 @@ jobs:
         role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-identity-providers-federation-github-actions
         aws-region: ap-northeast-1
     - name: Start EC2 Instance
-      run: ./scripts/ec2_start.sh
+      run: sh ./scripts/ec2_start.sh
   start-ecs-item-service:
     runs-on: ubuntu-latest
     permissions:
@@ -31,7 +31,7 @@ jobs:
         role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-identity-providers-federation-github-actions
         aws-region: ap-northeast-1
     - name: Start ECS Service
-      run: ./scripts/ecs_start.sh item-service
+      run: sh ./scripts/ecs_start.sh item-service
   start-ecs-reservation-service:
     runs-on: ubuntu-latest
     permissions:
@@ -45,7 +45,7 @@ jobs:
         role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-identity-providers-federation-github-actions
         aws-region: ap-northeast-1
     - name: Start ECS Service
-      run: ./scripts/ecs_start.sh reservation-service
+      run: sh ./scripts/ecs_start.sh reservation-service
   start-ecs-user-service:
     runs-on: ubuntu-latest
     permissions:
@@ -59,4 +59,4 @@ jobs:
         role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-identity-providers-federation-github-actions
         aws-region: ap-northeast-1
     - name: Start ECS Service
-      run: ./scripts/ecs_start.sh user-service
+      run: sh ./scripts/ecs_start.sh user-service
