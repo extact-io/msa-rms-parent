@@ -2,6 +2,8 @@ name: stop-aws-services
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 16 * * *' # 毎日AM 1:00に実行(+9:00)
 
 jobs:
   stop-ec2:
