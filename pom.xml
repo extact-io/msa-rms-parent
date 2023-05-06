@@ -59,6 +59,7 @@
 		<version.lib.commons-csv>1.9.0</version.lib.commons-csv>
 		<version.lib.lombok>1.18.24</version.lib.lombok>
 		<version.lib.text-io>3.4.1</version.lib.text-io>
+    	<version.plugin.openapi-gen>6.0.0</version.plugin.openapi-gen>
 
 		<!-- maven plugin versions -->
 		<version.plugin.maven-compiler>3.10.1</version.plugin.maven-compiler>
