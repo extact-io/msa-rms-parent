@@ -400,6 +400,9 @@
 		<!-- CommandLineInterface profile -->
 		<profile>
 			<id>cli</id>
+			<properties>
+				<mvn.profile.cli>on</mvn.profile.cli>
+			</properties>
 			<build>
 				<plugins>
 					<plugin>
