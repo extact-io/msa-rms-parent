@@ -6,20 +6,20 @@ on:
     - cron: '0 14 * * *' # 毎日PM 11:00に実行(+9:00)
 
 jobs:
-  stop-ec2:
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-    - uses: actions/checkout@v3
-    - name: configure aws credentials
-      uses: aws-actions/configure-aws-credentials@v1-node16
-      with:
-        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-identity-providers-federation-github-actions
-        aws-region: ap-northeast-1
-    - name: Stop EC2 Instance
-      run: sh ./scripts/ec2_stop.sh
+  #stop-ec2:
+  #  runs-on: ubuntu-latest
+  #  permissions:
+  #    id-token: write
+  #    contents: read
+  #  steps:
+  #  - uses: actions/checkout@v3
+  #  - name: configure aws credentials
+  #    uses: aws-actions/configure-aws-credentials@v1-node16
+  #    with:
+  #      role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-identity-providers-federation-github-actions
+  #      aws-region: ap-northeast-1
+  #  - name: Stop EC2 Instance
+  #    run: sh ./scripts/ec2_stop.sh
   stop-ecs-item-service:
     runs-on: ubuntu-latest
     permissions:
