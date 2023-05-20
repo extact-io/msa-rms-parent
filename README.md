@@ -1,1 +1,53 @@
-# msa-rms-parent 
+# Rental Management System Application 
+> Rental Management System(RMS)は[Helidon](https://helidon.io/)を用いてマイクロサービスやMicroProfileの利用法や効果を確認することを目的としたリファレンス的なアプリケーションです。  
+
+## Table of Contents
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+# サービス構成
+RMSは次のアプリケーションから構成されるマイクロサービスアーキテクチャになっています。
+
+![service_overview](./docs/service_overview.drawio.svg)
+
+|要素|説明|
+|---|----|
+|SPAクライアント|ReactによるRMSのSPAアプリ|
+|CLIクライアント|JavaSEでできているRMSのコンソールアプリ |
+|ApiGateway| 主に以下の役割を担う<br>- フロントエンドに対するFacade<br>- フロントエンドとバックエンドのデータモデルの変換<br>- ユーザ認証と後段サービスへの認証情報の伝播|
+|RentalItemService|レンタル品を管理するサービス|
+|ReservationService|予約を管理するサービス|
+|UserService|ユーザを管理するサービス|
+
+なお、SPA,CLIのどちらでもレンタル品の予約や管理を行うことができるが、CLIアプリはSPAアプリよりもできることが少なくなっている。
+
+:information_desk_person: INFO
+手っ取り早く動くものを見たい方は[こちら](https://app.rms.extact.io/)のデモアプリをお試しください。
+
+:warning: WARNIG  
+サンプルとして扱いやすいように小さいサービスを使っていますが、実業務ではこのような小さな粒度マイクロサービス化することはお勧めしません。マイクロサービスアーキテクチャで得られるメリットよりもデメリットの方が大きくなります。
+
+# repository構成
+RMSを構成する各アプリケーションやライブラリはマルチレポ形式で次のように管理されている
+
+|repository| 説明 |
+|----------|------|
+|[msa-rms](/msa-rms-parent/)| 親pomや共通的なGitHub Actionsのワークフローなどの共通定義を格納しているリポジトリ |
+|[msa-rms-platform](/msa-rms-platform/)| サービスに依らない基盤的な仕組みを提供するリポジトリでMavenのマルチモジュールによるモノレポ形式になっている。詳細はレポジトリの[README](/msa-rms-platform/README.md)を参照 |
+|[msa-rms-apigateway](/msa-rms-apigateway/)| ApiGatewayを格納するリポジトリ |
+|[msa-rms-service-item](/msa-rms-service-item/)| RentalItemServiceを格納するリポジトリ |
+|[msa-rms-service-reservation](/msa-rms-service-reservation/)| ReservationServiceを格納するリポジトリ |
+|[msa-rms-service-user](/msa-rms-service-user/)| UserServiceを格納するリポジトリ |
+|[msa-rms-ui-console](/msa-rms-ui-console/)| RMSのコンソールアプリを格納するリポジトリ |
+
+## Reactアプリのrepository構成
+Reactアプリを構成するrepositoryにはApiGatewayの[ソースコード](/msa-rms-apigateway/src/main/java/io/extact/msa/rms/apigateway/webapi/ApiGatewayResource.java)からMicroProfile OpenAPIで出力したOAS情報(openapi.yml)をもとにOpenAPI Generatorで自動生成したAPI Clientのコードを格納するrepositoryも含まれる。このrepository間の関係は次のとおり
+
+![react_rep_relations](./docs/react_rep_relations.drawio.svg)
+
+|repository| 説明 |
+|---|---|
+|[rms-ui-react](/rms-ui-react)|ReactによるrmsののSPAフロントエンドアプリのリポジトリ |
+|[rms-generated-client-js](/rms-generated-client-js)| OpenAPI Generatorで生成したAPI Clientコードを格納するリポジトリ |
+|[msa-rms-apigateway](/msa-rms-apigateway/)|openapi.ymlを出力するアプリのリポジトリ|
+
