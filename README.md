@@ -20,7 +20,7 @@ RMSは会員がレンタル品を予約するアプリケーションで管理�
 ||ユーザプロファイル|ユーザが自分の登録情報を確認、変更ができます|
 
 :information_desk_person: INFO
-手っ取り早く動くものを見たい方は[こちら](https://app.rms.extact.io/) <a href="https://app.rms.extact.io" target="_dummy">新規タブで開く</a>のデモアプリをお試しください。
+手っ取り早く動くものを見たい方は[こちら](https://app.rms.extact.io/)のデモアプリをお試しください。
 
 # サービス構成
 RMSは次のアプリケーションから構成されるマイクロサービスアーキテクチャになっています。
