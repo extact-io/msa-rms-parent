@@ -27,6 +27,8 @@ RMSは次のアプリケーションから構成されるマイクロサービ�
 
 ![service_overview](./docs/service_overview.drawio.svg)
 
+DBはh2のインメモリデータベースを使ったDatabase per Service構成にしている  
+
 |要素|説明|
 |---|----|
 |ApiGateway| 主に以下の役割を担う<br>- フロントエンドに対するFacade<br>- フロントエンドとバックエンドのデータモデルの変換<br>- ユーザ認証と後段サービスへの認証情報の伝播|
@@ -69,3 +71,18 @@ Reactアプリを構成するrepositoryにはApiGatewayの[ソースコード](/
 ローカルでも動作するがAWS上の次の構成をアプリケーションを動作させるターゲット環境としている。なお、CI/CDにはGitHub ActionsをContainerRegistryにはGitHub Packagesを使っている。
 
 ![aws_arch](./docs/aws_arch.drawio.svg)
+
+バックエンドサービスをPrivate subnetに配置することのみ必須とし、他はコストを最優先の構成にしている。このため、敢えて以下の構成としている
+- 高可用性は求めない。よって、シングルAZ構成にして高額なALBも利用していない
+- ECRは有料のためContainer RegistryにはGitHub Packagesを使用する
+- Private Subnetからインターネットへアクセスする方法はNATゲートウェイなどいくつかあるが、スポットインスタンスを使うことで利用料を大きく抑えることができるNATインスタンスとして使う方式にしている
+- EC2インスタンスをNATインスタンスだけで使うのはもったいないので、DockerをインストールしApiGatewayを相乗りさせている
+- サービス間通信はService Connectを使いたいところだが上述のとおり呼び出しの起点となるApiGatewayをアンマネージドなDockerで動かすためService Connectを使うことはできない。よって、Service Desicovery方式で行っている
+- CI/CDはGitHub Actionが無料のため、一部を除きAWSのCodeシリーズは使用しない
+- 誰も使わない深夜にサービスを起動しておくのはもったいないため、午後11時から翌9時の間はECS(Fargate)を停止する
+
+# アプリケーションアーキテクチャ
+## 論理アーキテクチャ
+ApiGatwayやReservationServiceなどのバックエンドアプリはいずれも次に示すDomainレイヤをリラックスレイヤにした一般的なレイヤーアーキテクチャを採用している
+
+![layer_arch](./docs/layer_arch.drawio.svg)
