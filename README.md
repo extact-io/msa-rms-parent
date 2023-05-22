@@ -1,5 +1,5 @@
 # Welcome to Rental Management System Application 
-> Rental Management System(RMS)は[Helidon](https://helidon.io/)を用いてマイクロサービスやMicroProfileの利用法や効果を確認することを目的としたリファレンス的なアプリケーションです。  また、このリポジトリはRMSの全体的な説明や親pom、GitHub Actionsの共通的なワークフローなどRMSの共通的な定義を格納したものになります
+> Rental Management System(RMS)は[Helidon](https://helidon.io/)を用いてマイクロサービスやMicroProfileの利用法や効果を確認することを目的としたリファレンス的なアプリケーションです。  また、このリポジトリはRMSの全体的な説明や親pom、GitHub Actionsの共通的なワークフローなどRMS全体で共通となる定義を格納したものになります
 
 ## Table of Contents
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -72,7 +72,16 @@ Reactアプリを構成するrepositoryにはApiGatewayの[ソースコード](/
 
 ![aws_arch](./docs/aws_arch.drawio.svg)
 
-バックエンドサービスをPrivate subnetに配置することのみ必須とし、他はコストを最優先の構成にしている。このため、敢えて以下の構成としている
+サービスを稼働させるコンテナ環境は次のとおりとなっている
+
+|サービス|稼働環境|
+|-------|--------|
+|ApiGateway|EC2(Installed Docker)|
+|RentalItemService|ECS(Fargate)|
+|ReservationService|ECS(Fargate)|
+|UserService|ECS(Fargate)|
+
+データを管理するサービスをPrivate subnetに配置することのみ必須とし、他はコストを最優先の構成にしている。このため、敢えて以下の構成としている
 - 高可用性は求めない。よって、シングルAZ構成にして高額なALBも利用していない
 - ECRは有料のためContainer RegistryにはGitHub Packagesを使用する
 - Private Subnetからインターネットへアクセスする方法はNATゲートウェイなどいくつかあるが、スポットインスタンスを使うことで利用料を大きく抑えることができるNATインスタンスとして使う方式にしている
@@ -80,6 +89,10 @@ Reactアプリを構成するrepositoryにはApiGatewayの[ソースコード](/
 - サービス間通信はService Connectを使いたいところだが上述のとおり呼び出しの起点となるApiGatewayをアンマネージドなDockerで動かすためService Connectを使うことはできない。よって、Service Desicovery方式で行っている
 - CI/CDはGitHub Actionが無料のため、一部を除きAWSのCodeシリーズは使用しない
 - 誰も使わない深夜にサービスを起動しておくのはもったいないため、午後11時から翌9時の間はECS(Fargate)を停止する
+
+:information_desk_person: INFO  
+実際の稼働環境は[こちら](https://app.rms.extact.io/)から
+
 
 # アプリケーションアーキテクチャ
 ApiGatwayやReservationServiceなどのバックエンドアプリはいずれも次に示すDomainレイヤをリラックスレイヤにした一般的なレイヤーアーキテクチャを採用している
@@ -212,8 +225,24 @@ MicroProfile OpenTracingの利用は簡単で、必要なライブラリをア�
 
 
 ## MicroProfile Fault Tolerance
-RMSでは、REST連携する対向システムがダウンしている際に未処理のリクエストが溜まり連鎖的に障害が発生することを防ぐため、[]()などREST連携を行う箇所でサーキットブレーカーの仕組みを適用している
+RMSでは、REST連携する対向システムがダウンしている際に未処理のリクエストが溜まり連鎖的に障害が発生することを防ぐため、[RentalItemApiProxy](https://github.com/extact-io/msa-rms-apigateway/blob/main/src/main/java/io/extact/msa/rms/apigateway/external/proxy/RentalItemApiProxy.java)などREST連携を行う箇所でサーキットブレーカーを下記のように設定している
 
+```java
+@NetworkConnectionErrorAware
+@CircuitBreaker(
+        requestVolumeThreshold = 4, 
+        failureRatio=0.5, 
+        delay = 10000, 
+        successThreshold = 3,
+        failOn = RmsNetworkConnectionException.class)
+public class RentalItemApiProxy implements RentalItemApi {..
+```
+こ３設定内容は次のとおり
+1. `@NetworkConnectionErrorAware`によりネットワークエラーは`RmsNetworkConnectionException`に変換される
+2. 失敗として`RmsNetworkConnectionException`をカウントし、それ以外の例外が発生しても失敗にはカウントしない
+3. 直近処理した4件の失敗率が0.5、つまり2件以上であった場合にサーキットブレーカーをopenにし、以降10秒間のメソッド呼び出しに対しては`CircuitBreakerOpenException`を送出する
+4. 10秒経過後、3回連続して処理が成功した場合、つまり`CircuitBreakerOpenException`以外が返却された場合に正常状態に復帰する
+5. 3回連続する前に処理が1度でも失敗した場合は、3.に戻り同様の制御を繰り返し行う
 
 :information_source: 参考記事  
 ・[MicroProfile Fault Tolerance(1) - 例で理解する基本機能編 | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/msa/mp/cntrn12-mp-faulttolerance1/)
