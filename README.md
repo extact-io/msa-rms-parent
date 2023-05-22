@@ -1,5 +1,5 @@
 # Welcome to Rental Management System Application 
-> Rental Management System(RMS)は[Helidon](https://helidon.io/)を用いてマイクロサービスやMicroProfileの利用法や効果を確認することを目的としたリファレンス的なアプリケーションです。  また、このリポジトリはRMSの全体的な説明やpom、GitHub Actionsの共通的なワークフローなどを格納したものになります
+> Rental Management System(RMS)は[Helidon](https://helidon.io/)を用いてマイクロサービスやMicroProfileの利用法や効果を確認することを目的としたリファレンス的なアプリケーションです。  また、このリポジトリはRMSの全体的な説明や親pom、GitHub Actionsの共通的なワークフローなどRMSの共通的な定義を格納したものになります
 
 ## Table of Contents
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -212,11 +212,8 @@ MicroProfile OpenTracingの利用は簡単で、必要なライブラリをア�
 
 
 ## MicroProfile Fault Tolerance
-RMSでは、REST連携する対向システムがダウンしている際に未処理のリクエストが溜まり連鎖的に障害が発生することを防ぐため、REST連携を行う箇所でサーキットブレーカーの仕組みを適用している
+RMSでは、REST連携する対向システムがダウンしている際に未処理のリクエストが溜まり連鎖的に障害が発生することを防ぐため、[]()などREST連携を行う箇所でサーキットブレーカーの仕組みを適用している
 
-この仕組みを適用している個所は次のとおり
-- [a](a)
-- 
 
 :information_source: 参考記事  
 ・[MicroProfile Fault Tolerance(1) - 例で理解する基本機能編 | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/msa/mp/cntrn12-mp-faulttolerance1/)
