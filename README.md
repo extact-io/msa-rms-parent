@@ -70,9 +70,11 @@ Reactアプリを構成するrepositoryにはApiGatewayの[ソースコード](/
 # システムアーキテクチャ
 ローカルでも動作するがAWS上の次の構成をアプリケーションを動作させるターゲット環境としている。なお、CI/CDにはGitHub ActionsをContainerRegistryにはGitHub Packagesを使っている。
 
+## RMSのシステム全体像
+
 ![aws_arch](./docs/aws_arch.drawio.svg)
 
-サービスを稼働させるコンテナ環境は次のとおりとなっている
+サービスを稼働させるコンテナ環境は次のとおり
 
 |サービス|稼働環境|
 |-------|--------|
@@ -81,17 +83,22 @@ Reactアプリを構成するrepositoryにはApiGatewayの[ソースコード](/
 |ReservationService|ECS(Fargate)|
 |UserService|ECS(Fargate)|
 
-データを管理するサービスをPrivate subnetに配置することのみ必須とし、他はコストを最優先の構成にしている。このため、敢えて以下の構成としている
-- 高可用性は求めない。よって、シングルAZ構成にして高額なALBも利用していない
-- ECRは有料のためContainer RegistryにはGitHub Packagesを使用する
-- Private Subnetからインターネットへアクセスする方法はNATゲートウェイなどいくつかあるが、スポットインスタンスを使うことで利用料を大きく抑えることができるNATインスタンスとして使う方式にしている
-- EC2インスタンスをNATインスタンスだけで使うのはもったいないので、DockerをインストールしApiGatewayを相乗りさせている
-- サービス間通信はService Connectを使いたいところだが上述のとおり呼び出しの起点となるApiGatewayをアンマネージドなDockerで動かすためService Connectを使うことはできない。よって、Service Desicovery方式で行っている
-- CI/CDはGitHub Actionが無料のため、一部を除きAWSのCodeシリーズは使用しない
-- 誰も使わない深夜にサービスを起動しておくのはもったいないため、午後11時から翌9時の間はECS(Fargate)を停止する
+データを管理するサービスをPrivate subnetに配置することのみ必須とし、他はコストを最優先の構成にしている。このため、敢えてシングルAZ構成で高額なALBも利用していない
 
 :information_desk_person: INFO  
-実際の稼働環境は[こちら](https://app.rms.extact.io/)から
+実際のアプリのお試しは[こちら](https://app.rms.extact.io/)からどうぞ
+
+## CI/CD環境
+上述のとおり、CI/CD環境はすべてGitHubのサービスでまかなっている。
+
+- JavaのコンパイルからコンテナイメージのContainerRegistryへのpushまでのビルド操作はすべてMavenで行いってる。
+- コンテナイメージのbuildからpushの定義は親pomに[docker-maven-plugin](https://github.com/fabric8io/docker-maven-plugin)を使って定義している
+- コンテナイメージのtagはGitHub Actionの[build-to-repo-job.yml](https://github.com/extact-io/msa-rms-parent/blob/main/.github/workflows/build-to-repo-job.yml)でgitのコミットハッシュ値をつけている
+- EC2のDockerコンテナ上で稼働するApiGatewayへのデプロイは[deploy-to-ec2-job.yml](https://github.com/extact-io/msa-rms-parent/blob/main/.github/workflows/deploy-to-ec2-job.yml)でビルドしたコミットハッシュ値のコンテナイメージを起動するように書き換えたシェルスクリプトをAWS CodeDeployでEC2にデプロイしコンテナを再起動している
+- Fargate上の各サービスのデプロイは[deploy-to-ecs-job.yml](https://github.com/extact-io/msa-rms-parent/blob/main/.github/workflows/deploy-to-ecs-job.yml)でAWS CLIでコンテナのタグをコミットハッシュ値に書き換えた新しいリビジョンのタグ定義を作成し、サービスを更新することで再デプロイを行っている
+
+:information_source: 参考記事  
+・[今さら聞けないMaven – コンテナのビルドと一緒にpushもMavenでしたい。 | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/blogs/2023/03/02/docker-push-with-maven/)  
 
 
 # アプリケーションアーキテクチャ
@@ -237,7 +244,7 @@ RMSでは、REST連携する対向システムがダウンしている際に未�
         failOn = RmsNetworkConnectionException.class)
 public class RentalItemApiProxy implements RentalItemApi {..
 ```
-こ３設定内容は次のとおり
+この設定内容は次のとおり
 1. `@NetworkConnectionErrorAware`によりネットワークエラーは`RmsNetworkConnectionException`に変換される
 2. 失敗として`RmsNetworkConnectionException`をカウントし、それ以外の例外が発生しても失敗にはカウントしない
 3. 直近処理した4件の失敗率が0.5、つまり2件以上であった場合にサーキットブレーカーをopenにし、以降10秒間のメソッド呼び出しに対しては`CircuitBreakerOpenException`を送出する
