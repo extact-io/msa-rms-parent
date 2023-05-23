@@ -30,7 +30,6 @@ RMSは会員がレンタル品を予約するアプリケーションで管理�
 # マイクロサービスの構成
 RMSは次のアプリケーションから構成されるマイクロサービスアーキテクチャになっている
 
-![service_overview](./docs/service_overview.drawio.svg)
 
 DBはh2のインメモリデータベースを使ったDatabase per Service構成にしている  
 
