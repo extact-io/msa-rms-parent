@@ -216,7 +216,7 @@ RMSではID/Passwordによる独自のログイン機能を用意し、ログイ
 
 RMSではこのJWT認証にMicroProfile JWT Authの機能を使って実現している。MicroProfile JWT Authを利用する上で必要な実装はなく、[ApiGatewayApplication](https://github.com/extact-io/msa-rms-apigateway/blob/main/src/main/java/io/extact/msa/rms/apigateway/webapi/ApiGatewayApplication.java)のように認証配下とするRESTリソースを管理するJAX-RSのApplicationクラスに`@LoginConfig(authMethod = "MP-JWT")`を付けるだけとなる
 
-また、MicroProfile JWT Authとは関係ないが、ログイン成功時にJWTを発行する仕組みはplatform-coreの[jwtパッケージ](https://github.com/extact-io/msa-rms-platform/tree/main/platform-core/src/main/java/io/extact/msa/rms/platform/core)に、そして発行されたJWTをクライアントに伝播させる仕組みはplatform-fwの[loginパッケージ](https://github.com/extact-io/msa-rms-platform/tree/main/platform-fw/src/main/java/io/extact/msa/rms/platform/fw/login)に実装している
+また、MicroProfile JWT Authとは関係ないが、ログイン成功時にJWTを発行する仕組みはplatform-coreの[jwtパッケージ](https://github.com/extact-io/msa-rms-platform/tree/main/platform-core/src/main/java/io/extact/msa/rms/platform/core/jwt)に、そして発行されたJWTをクライアントに伝播させる仕組みはplatform-fwの[loginパッケージ](https://github.com/extact-io/msa-rms-platform/tree/main/platform-fw/src/main/java/io/extact/msa/rms/platform/fw/login)に実装している
 
 JWTを生成する処理は[Auth0 java-jwt](https://github.com/auth0/java-jwt)を使った[Auth0RsaJwtGenerator](https://github.com/extact-io/msa-rms-platform/blob/main/platform-core/src/main/java/io/extact/msa/rms/platform/core/jwt/provider/impl/Auth0RsaJwtGenerator.java)と[jose4j](https://bitbucket.org/b_c/jose4j/wiki/Home)を使った[Jose4jRsaJwtGenerator](https://github.com/extact-io/msa-rms-platform/blob/main/platform-core/src/main/java/io/extact/msa/rms/platform/core/jwt/provider/impl/Jose4jRsaJwtGenerator.java)を用意している
 
