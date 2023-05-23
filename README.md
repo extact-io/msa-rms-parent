@@ -73,7 +73,7 @@ ReactアプリのrepositoryにはApiGatewayの[ソースコード](/msa-rms-apig
 |[msa-rms-apigateway](https://github.com/extact-io/msa-rms-apigateway/)|openapi.ymlを出力するアプリのリポジトリ|
 
 # システムアーキテクチャ
-RMSはローカルでも動作するがAWS上の次の構成をアプリケーションのターゲット環境としている。なお、CI/CDにはGitHub ActionsをContainerRegistryにはGitHub Packagesを使っている。
+RMSはローカルでも動作するがAWS上の次の構成をアプリのターゲット環境としている。なお、CI/CDにはGitHub ActionsをContainerRegistryにはGitHub Packagesを使っている。
 
 ## RMSのシステム全体像
 
@@ -88,7 +88,7 @@ RMSはローカルでも動作するがAWS上の次の構成をアプリケー�
 |ReservationService|ECS(Fargate)|
 |UserService|ECS(Fargate)|
 
-データを管理するサービスはPrivate subnetに配置することのみを必須とし、あくまでもデモ環境のため、他はコストを最優先の構成にしている。このため、敢えてシングルAZ構成で高額なALBも利用していない
+データを管理するサービスはPrivate subnetに配置することのみを必須とし、その他はデモ環境でもあるため、コストを最優先の構成にしている。よって、敢えてシングルAZ構成で高額なALBも利用していない
 
 :information_desk_person: INFO  
 実際のアプリのお試しは[こちら](https://app.rms.extact.io/)からどうぞ
