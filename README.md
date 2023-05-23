@@ -1,5 +1,5 @@
 # Rental Management System Application with MSA
-> Rental Management System(RMS)は[Helidon](https://helidon.io/)を使ってマイクロサービスやMicroProfileの利用法や効果を確認することを目的としたリファレンス的なアプリケーションです。  また、このリポジトリはRMSの説明や親pom、GitHub Actionsの共通的なワークフローなどRMS全体で共通となる情報や定義を格納したものになります
+> Rental Management System(RMS)は[Helidon](https://helidon.io/)を使ってマイクロサービスやMicroProfileの利用法や効果を確認することを目的としたリファレンス的なアプリケーションです。このリポジトリはRMSの説明や親pom、GitHub Actionsの共通的なワークフローなどRMS全体で共通となる情報や定義を格納したものになります
 
 # Table of Contents
 - [アプリケーション機能](#アプリケーション機能)
