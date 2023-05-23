@@ -136,11 +136,12 @@ ApiGatwayやReservationServiceなどのバックエンドアプリはいずれ�
 
 レイヤ間やパッケージやライブラリへの依存関係のルールは[ArchUnitの実装](https://github.com/extact-io/msa-rms/wiki/ArchUnit%E3%81%AB%E3%82%88%E3%82%8B%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3%E5%AE%9A%E7%BE%A9)で細かく定義している
 
+:pushpin: POINT  
+Persistenceレイヤは設定を切り替えるだけでFileによる永続化とJPAを使ったRBDへの永続化のどちらでも使えるようにしている  
+
 :information_source: 参考記事  
 ・[ArchUnitで考えるアーキテクチャ構造とその検証 | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/blogs/2022/05/19/archunit-and-architechure/)  
 
-:pushpin: POINT  
-Persistenceレイヤは設定を切り替えるだけでFileによる永続化とJPAを使ったRBDへの永続化のどちらでも使えるようにしている  
 
 # MicroProfileを使った主な仕組み
 MicroProfileの機能を使って実現しているRMSアプリケーションの主な仕組みは以下のとおり
