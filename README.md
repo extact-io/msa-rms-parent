@@ -1,9 +1,14 @@
-# Welcome to Rental Management System Application 
+# Rental Management System Application with MSA
 > Rental Management System(RMS)は[Helidon](https://helidon.io/)を使ってマイクロサービスやMicroProfileの利用法や効果を確認することを目的としたリファレンス的なアプリケーションです。  また、このリポジトリはRMSの説明や親pom、GitHub Actionsの共通的なワークフローなどRMS全体で共通となる情報や定義を格納したものになります
 
-## Table of Contents
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+# Table of Contents
+- [アプリケーション機能](#アプリケーション機能)
+- [マイクロサービスの構成](#マイクロサービスの構成)
+- [repository構成](#repository構成)
+- [システムアーキテクチャ](#システムアーキテクチャ)
+- [アプリケーションアーキテクチャ](#アプリケーションアーキテクチャ)
+- [MicroProfileを使った主な仕組み](#microprofileを使った主な仕組み)
+
 
 # アプリケーション機能
 RMSは会員がレンタル品を予約するアプリケーションで管理機能としてマスターデータをメンテナンスする機能を持っている。なお、実装している機能は予約まででレンタルを行う機能はまだ持っていない
@@ -22,7 +27,7 @@ RMSは会員がレンタル品を予約するアプリケーションで管理�
 :information_desk_person: INFO  
 手っ取り早く動くものを見たい方は[こちら](https://app.rms.extact.io/)のデモアプリをお試を
 
-# サービス構成
+# マイクロサービスの構成
 RMSは次のアプリケーションから構成されるマイクロサービスアーキテクチャになっている
 
 ![service_overview](./docs/service_overview.drawio.svg)
@@ -102,6 +107,21 @@ RMSはローカルでも動作するがAWS上の次の構成をアプリケー�
 
 
 # アプリケーションアーキテクチャ
+## 利用ライブラリと準拠API
+RMSで利用、採用している主なものは下記のとおり
+- ランタイム系
+  - Java17（OpenJDK v17.0.3）
+  - [MicroProfile 5.0](https://download.eclipse.org/microprofile/microprofile-5.0/microprofile-spec-5.0.html)
+  - [Helidon MP 3.2.x](https://helidon.io/docs/v3/#/about/introduction)
+  - H2 Database
+  - [Text-IO 3.4.1](https://github.com/beryx/text-io) -> コンソールアプリ向けのframework
+- テスト系
+  - JUnit 5.7
+  - [ArchUnit 0.23](https://www.archunit.org/)
+  - [Helidon MP Testing with JUnit5](https://helidon.io/docs/v3/#/mp/testing)
+
+
+## 論理アーキテクチャ
 ApiGatwayやReservationServiceなどのバックエンドアプリはいずれも次に示すdomainレイヤをリラックスレイヤにした一般的なレイヤーアーキテクチャを採用している
 
 ![layer_arch](./docs/layer_arch.drawio.svg)
