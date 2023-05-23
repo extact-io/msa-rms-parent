@@ -139,6 +139,9 @@ ApiGatwayやReservationServiceなどのバックエンドアプリはいずれ�
 :pushpin: POINT  
 Persistenceレイヤは設定を切り替えるだけでFileによる永続化とJPAを使ったRBDへの永続化のどちらでも使えるようにしている
 
+:information_source: 参考記事  
+・[ArchUnitで考えるアーキテクチャ構造とその検証 | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/blogs/2022/05/19/archunit-and-architechure/)  
+
 # MicroProfileを使った主な仕組み
 MicroProfileの機能を使って実現しているRMSアプリケーションの主な仕組みは以下のとおり
 
