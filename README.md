@@ -97,7 +97,7 @@ RMSはローカルでも動作するがAWS上の次の構成をアプリケー�
 上述のとおり、CI/CD環境はすべてGitHubのサービスでまかなっている。
 
 - JavaのコンパイルからコンテナイメージのContainerRegistryへのpushまでの操作はすべてMavenで行いってる
-- コンテナイメージのbuildからpushの定義は親pomに[docker-maven-plugin](https://github.com/fabric8io/docker-maven-plugin)を使って行っている
+- コンテナイメージのbuildからpushの定義は[親pom](https://github.com/extact-io/msa-rms-parent/blob/main/pom.xml)に[docker-maven-plugin](https://github.com/fabric8io/docker-maven-plugin)を使って行っている
 - コンテナイメージのtagはGitHub Actionの[build-to-repo-job.yml](https://github.com/extact-io/msa-rms-parent/blob/main/.github/workflows/build-to-repo-job.yml)でgitのコミットハッシュをつけている
 - EC2のDockerコンテナ上で稼働するApiGatewayへのデプロイは[deploy-to-ec2-job.yml](https://github.com/extact-io/msa-rms-parent/blob/main/.github/workflows/deploy-to-ec2-job.yml)でビルドしたコミットハッシュのコンテナイメージを起動するように書き換えたシェルスクリプトをAWS CodeDeployでEC2にデプロイし、コンテナを再起動している
 - Fargate上の各サービスのデプロイは[deploy-to-ecs-job.yml](https://github.com/extact-io/msa-rms-parent/blob/main/.github/workflows/deploy-to-ecs-job.yml)でAWS CLIでコンテナのtagをコミットハッシュに書き換えた新しいリビジョンのタスク定義を作成し、サービスを更新することで再デプロイを行っている
