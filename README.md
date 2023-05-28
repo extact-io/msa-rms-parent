@@ -93,6 +93,9 @@ RMSはローカルでも動作するがAWS上の次の構成をアプリのタ�
 :information_desk_person: INFO  
 実際のアプリのお試しは[こちら](https://app.rms.extact.io/)からどうぞ
 
+:information_source: 関連記事  
+・[1日50円で使えるマイクロサービスなアプリを動かすAWS環境を作ってみた | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/blogs/2023/05/28/msaapp-on-50yen-aws/)  
+
 ## CI/CD環境
 上述のとおり、CI/CD環境はすべてGitHubのサービスでまかなっている。
 
@@ -102,7 +105,7 @@ RMSはローカルでも動作するがAWS上の次の構成をアプリのタ�
 - EC2のDockerコンテナ上で稼働するApiGatewayへのデプロイは[deploy-to-ec2-job.yml](https://github.com/extact-io/msa-rms-parent/blob/main/.github/workflows/deploy-to-ec2-job.yml)でビルドしたコミットハッシュのコンテナイメージを起動するように書き換えたシェルスクリプトをAWS CodeDeployでEC2にデプロイし、コンテナを再起動している
 - Fargate上の各サービスのデプロイは[deploy-to-ecs-job.yml](https://github.com/extact-io/msa-rms-parent/blob/main/.github/workflows/deploy-to-ecs-job.yml)でAWS CLIでコンテナのtagをコミットハッシュに書き換えた新しいリビジョンのタスク定義を作成し、サービスを更新することで再デプロイを行っている
 
-:information_source: 参考記事  
+:information_source: 関連記事  
 ・[今さら聞けないMaven – コンテナのビルドと一緒にpushもMavenでしたい。 | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/blogs/2023/03/02/docker-push-with-maven/)  
 
 
@@ -139,7 +142,7 @@ ApiGatwayやReservationServiceなどのバックエンドアプリはいずれ�
 :pushpin: POINT  
 Persistenceレイヤは設定を切り替えるだけでFileによる永続化とJPAを使ったRBDへの永続化のどちらでも使えるようにしている  
 
-:information_source: 参考記事  
+:information_source: 関連記事  
 ・[ArchUnitで考えるアーキテクチャ構造とその検証 | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/blogs/2022/05/19/archunit-and-architechure/)  
 
 
@@ -164,7 +167,7 @@ MicroProfileの機能を使って実現しているRMSアプリケーション�
 
 パスフレーズなどの機密情報はターゲット環境のセキュアな領域に配置された定義を読み込むようにしている。なお、MicroProfile Configの[Config Profile](https://download.eclipse.org/microprofile/microprofile-config-3.0.1/microprofile-config-spec-3.0.1.html#configprofile)機能はYAMLが使えないなど使いづらい部分があるため使用していない
 
-:information_source: 参考記事  
+:information_source: 関連記事  
 ・[お手軽便利MicroProfile Config | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/msa/mp/cntrn06-mp-config/)  
 ・[MicroProfile Config 3.0へのキャッチアップ | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/msa/mp/cntrn08-mp-config3/)
 
@@ -181,7 +184,7 @@ RMSでは次の箇所でMicroProfile Rest Clientの機能を使っている
 - REST呼び出しに対する例外ハンドリング(ResponseExceptionMapper)
   - Responseのステータスコードが400番台や500番台のエラーを示している場合、アプリにはそのエラーに応じた例外を返却するようにMicroProfile Rest ClientのResponseExceptionMapperを使い、[PropagateResponseExceptionMapper](https://github.com/extact-io/msa-rms-platform/blob/main/platform-fw/src/main/java/io/extact/msa/rms/platform/fw/external/PropagateResponseExceptionMapper.java)でResponseに対するエラーハンドリングを一元的に行っている
 
-:information_source: 参考記事  
+:information_source: 関連記事  
 ・[らくらくMicroProfile RestClient | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/msa/mp/cntrn07-mp-restclient/)  
 ・[MicroProfile RestClient 3.0の確認と小技機能の紹介 | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/msa/mp/cntrn11-mp-restclient3/)
 
@@ -211,7 +214,7 @@ RMSでは`/openapi`を呼び出してファイル出力する[GenerateOasFileTes
 Helidonの独自機能となるが[OpenAPI UI](https://helidon.io/docs/v3/#/mp/openapi/openapi-ui)機能を使うことで、`/openapi`のレスポンスを[こちら](https://api.rms.extact.io/openapi/ui/index.html)のようなswagger-uiで簡単にみることができる
 
 
-:information_source: 参考記事  
+:information_source: 関連記事  
 ・[コードが仕様の源泉MicroProfile OpenAPI | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/msa/mp/cntrn05-mp-openapi/)  
 ・[MicroProfile OpenAPI 3.0の新機能と既存機能の比較 | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/msa/mp/cntrn09-mp-openapi3/)
 
@@ -224,7 +227,7 @@ RMSではこのJWT認証にMicroProfile JWT Authの機能を使って実現し�
 
 JWTを生成する処理は[Auth0 java-jwt](https://github.com/auth0/java-jwt)を使った[Auth0RsaJwtGenerator](https://github.com/extact-io/msa-rms-platform/blob/main/platform-core/src/main/java/io/extact/msa/rms/platform/core/jwt/provider/impl/Auth0RsaJwtGenerator.java)と[jose4j](https://bitbucket.org/b_c/jose4j/wiki/Home)を使った[Jose4jRsaJwtGenerator](https://github.com/extact-io/msa-rms-platform/blob/main/platform-core/src/main/java/io/extact/msa/rms/platform/core/jwt/provider/impl/Jose4jRsaJwtGenerator.java)を用意している
 
-:information_source: 参考記事  
+:information_source: 関連記事  
 ・[基本から理解するJWTとJWT認証の仕組み | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/blogs/2022/12/08/jwt-auth/)  
 ・[MicroProfile JWT Authがやってくれること・できること | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/msa/mp/cntrn17-mp-jwt/)  
 ・[Auth0 java-jwtを使った素のJWT認証 | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/blogs/2022/12/10/java-jwt-auth/)  
@@ -236,14 +239,14 @@ RMSではコンテナに対する独自のヘルスチェックコマンドと�
 
 DBを持つサービスにはping sqlを発行し、DBの死活状態を確認する[DbReadinessCheck](https://github.com/extact-io/msa-rms-platform/blob/main/platform-core/src/main/java/io/extact/msa/rms/platform/core/health/DbReadinessCheck.java)を、そしてApiGatewayのように他のサービスへ連携を行うサービスについては、設定で定義されたすべての連携先に対してReadiness Probe(`/health/ready`)を行いすべてOKなら自身のステータスもOKとする[ReadinessOfOutboundServersHealthCheck](https://github.com/extact-io/msa-rms-platform/blob/main/platform-core/src/main/java/io/extact/msa/rms/platform/core/health/ReadinessOfOutboundServersHealthCheck.java)を用意している
 
-:information_source: 参考記事  
+:information_source: 関連記事  
 ・[MicroProfile Healthの機能と利用 | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/msa/mp/cntrn10-mp-health/)
 
 ## MicroProfile Metrics
 RMSでの利用はなし  
 （MicroProfile Metricsがデフォルトで取集するメトリクスに対するGrafanaの素敵なダッシュボードがないため。誰か作って・・）
 
-:information_source: 参考記事  
+:information_source: 関連記事  
 ・[MicroProfile Metricsの機能と利用 | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/msa/mp/cntrn15-mp-metrics/)
 
 ## MicroProfile OpenTracing
@@ -255,7 +258,7 @@ MicroProfile OpenTracingの利用は簡単で、必要なライブラリをア�
 
 なお、RMSの実際の分散トレースは[こちら](http://api.rms.extact.io:16686/search)から参照することができる
 
-:information_source: 参考記事  
+:information_source: 関連記事  
 ・[MicroProfile OpenTracingとJaegerで理解する分散トレーシング | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/msa/mp/cntrn16-mp-tracing/)
 
 
@@ -279,7 +282,7 @@ public class RentalItemApiProxy implements RentalItemApi {..
 4. 10秒経過後、3回連続して処理が成功した場合、つまり`CircuitBreakerOpenException`以外が返却された場合に正常状態に復帰する
 5. 3回連続する前に処理が1度でも失敗した場合は、3.に戻り同様の制御を繰り返し行う
 
-:information_source: 参考記事  
+:information_source: 関連記事  
 ・[MicroProfile Fault Tolerance(1) - 例で理解する基本機能編 | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/msa/mp/cntrn12-mp-faulttolerance1/)  
 ・[MicroProfile Fault Tolerance(2) - 例で理解する非同期編 | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/msa/mp/cntrn13-mp-faulttolerance2/)  
 ・[MicroProfile Fault Tolerance(3) - 例で理解する設定編 | 豆蔵デベロッパーサイト](https://developer.mamezou-tech.com/msa/mp/cntrn14-mp-faulttolerance3/)
