@@ -2,8 +2,8 @@ name: start-aws-services
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '30 23 * * *' # 毎日AM 8:30に実行(+9:00)
+  #schedule:
+  #  - cron: '30 23 * * *' # 毎日AM 8:30に実行(+9:00)
 
 jobs:
   #start-ec2:
